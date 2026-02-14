@@ -1,6 +1,9 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">SilSalon_v.1</a>
+        <a class="navbar-brand d-flex align-items-center" href="">
+            <i class="bi bi-scissors me-2"></i>
+            <span>Sil Salón - Cuentas</span>
+        </a>
     </div>
 </div>
 
@@ -10,119 +13,181 @@
     <nav class="nav flex-column p-2">
         <!-- Dashboard -->
         <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="" Match="NavLinkMatch.All">
-                <i class="bi bi-speedometer2 me-3 fs-5"></i>
+            <NavLink class="nav-link text-white d-flex align-items-center" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-speedometer2 nav-icon"></i>
                 <span>Dashboard</span>
+                <span class="help-tooltip" title="Vista general de tu negocio: ventas, gastos y estadísticas del día y mes">?</span>
             </NavLink>
         </div>
 
         <!-- Sección: Ventas -->
-        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Ventas</div>
-        
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="ventas">
-                <i class="bi bi-cart-check me-3 fs-5"></i>
-                <span>Nueva Venta</span>
-            </NavLink>
-        </div>
+        <div class="nav-section">
+            <button class="nav-section-header text-uppercase text-white w-100 d-flex align-items-center justify-content-between" 
+                    @onclick="() => ventasExpanded = !ventasExpanded" type="button">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-cart me-2"></i>Ventas
+                </span>
+                <i class="bi @(ventasExpanded ? "bi-chevron-up" : "bi-chevron-down") transition-icon"></i>
+            </button>
+            
+            <div class="nav-section-content @(ventasExpanded ? "expanded" : "collapsed")">
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="ventas">
+                        <i class="bi bi-cart-check nav-icon"></i>
+                        <span>Nueva Venta</span>
+                        <span class="help-tooltip" title="Registra una venta de productos o servicios a un cliente">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="historial-ventas">
-                <i class="bi bi-receipt me-3 fs-5"></i>
-                <span>Historial Ventas</span>
-            </NavLink>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-ventas">
+                        <i class="bi bi-receipt nav-icon"></i>
+                        <span>Historial Ventas</span>
+                        <span class="help-tooltip" title="Consulta todas las ventas realizadas anteriormente">?</span>
+                    </NavLink>
+                </div>
+            </div>
         </div>
 
         <!-- Sección: Catálogo -->
-        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Catálogo</div>
-        
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="servicios">
-                <i class="bi bi-brush me-3 fs-5"></i>
-                <span>Servicios</span>
-            </NavLink>
-        </div>
+        <div class="nav-section">
+            <button class="nav-section-header text-uppercase text-white w-100 d-flex align-items-center justify-content-between" 
+                    @onclick="() => catalogoExpanded = !catalogoExpanded" type="button">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-grid me-2"></i>Catálogo
+                </span>
+                <i class="bi @(catalogoExpanded ? "bi-chevron-up" : "bi-chevron-down") transition-icon"></i>
+            </button>
+            
+            <div class="nav-section-content @(catalogoExpanded ? "expanded" : "collapsed")">
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="servicios">
+                        <i class="bi bi-brush nav-icon"></i>
+                        <span>Servicios</span>
+                        <span class="help-tooltip" title="Agrega o edita los servicios que ofreces (cortes, tintes, etc.)">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="productos">
-                <i class="bi bi-box-seam me-3 fs-5"></i>
-                <span>Productos</span>
-            </NavLink>
-        </div>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="productos">
+                        <i class="bi bi-box-seam nav-icon"></i>
+                        <span>Productos</span>
+                        <span class="help-tooltip" title="Administra los productos que vendes (shampoos, tratamientos, etc.)">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="variantes">
-                <i class="bi bi-palette me-3 fs-5"></i>
-                <span>Variantes</span>
-            </NavLink>
-        </div>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="variantes">
+                        <i class="bi bi-palette nav-icon"></i>
+                        <span>Variantes</span>
+                        <span class="help-tooltip" title="Configura tamaños, colores o presentaciones de tus productos">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="inventario">
-                <i class="bi bi-box2 me-3 fs-5"></i>
-                <span>Inventario</span>
-            </NavLink>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="inventario">
+                        <i class="bi bi-box2 nav-icon"></i>
+                        <span>Inventario</span>
+                        <span class="help-tooltip" title="Revisa cuánto producto tienes en existencia">?</span>
+                    </NavLink>
+                </div>
+            </div>
         </div>
 
         <!-- Sección: Compras -->
-        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Compras</div>
-        
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="compras">
-                <i class="bi bi-bag-plus me-3 fs-5"></i>
-                <span>Nueva Compra</span>
-            </NavLink>
-        </div>
+        <div class="nav-section">
+            <button class="nav-section-header text-uppercase text-white w-100 d-flex align-items-center justify-content-between" 
+                    @onclick="() => comprasExpanded = !comprasExpanded" type="button">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-bag me-2"></i>Compras
+                </span>
+                <i class="bi @(comprasExpanded ? "bi-chevron-up" : "bi-chevron-down") transition-icon"></i>
+            </button>
+            
+            <div class="nav-section-content @(comprasExpanded ? "expanded" : "collapsed")">
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="compras">
+                        <i class="bi bi-bag-plus nav-icon"></i>
+                        <span>Nueva Compra</span>
+                        <span class="help-tooltip" title="Registra compras de productos a tus proveedores">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="historial-compras">
-                <i class="bi bi-bag me-3 fs-5"></i>
-                <span>Historial Compras</span>
-            </NavLink>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-compras">
+                        <i class="bi bi-bag nav-icon"></i>
+                        <span>Historial Compras</span>
+                        <span class="help-tooltip" title="Consulta todas las compras realizadas a proveedores">?</span>
+                    </NavLink>
+                </div>
+            </div>
         </div>
 
         <!-- Sección: Contactos -->
-        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Contactos</div>
-        
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="clientes">
-                <i class="bi bi-people me-3 fs-5"></i>
-                <span>Clientes</span>
-            </NavLink>
-        </div>
+        <div class="nav-section">
+            <button class="nav-section-header text-uppercase text-white w-100 d-flex align-items-center justify-content-between" 
+                    @onclick="() => contactosExpanded = !contactosExpanded" type="button">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-person-lines-fill me-2"></i>Contactos
+                </span>
+                <i class="bi @(contactosExpanded ? "bi-chevron-up" : "bi-chevron-down") transition-icon"></i>
+            </button>
+            
+            <div class="nav-section-content @(contactosExpanded ? "expanded" : "collapsed")">
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="clientes">
+                        <i class="bi bi-people nav-icon"></i>
+                        <span>Clientes</span>
+                        <span class="help-tooltip" title="Administra tu lista de clientes y su información de contacto">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="proveedores">
-                <i class="bi bi-truck me-3 fs-5"></i>
-                <span>Proveedores</span>
-            </NavLink>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="proveedores">
+                        <i class="bi bi-truck nav-icon"></i>
+                        <span>Proveedores</span>
+                        <span class="help-tooltip" title="Administra tus proveedores de productos">?</span>
+                    </NavLink>
+                </div>
+            </div>
         </div>
 
         <!-- Sección: Finanzas -->
-        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Finanzas</div>
-        
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="ingresos">
-                <i class="bi bi-cash-stack me-3 fs-5"></i>
-                <span>Otros Ingresos</span>
-            </NavLink>
-        </div>
+        <div class="nav-section">
+            <button class="nav-section-header text-uppercase text-white w-100 d-flex align-items-center justify-content-between" 
+                    @onclick="() => finanzasExpanded = !finanzasExpanded" type="button">
+                <span class="d-flex align-items-center">
+                    <i class="bi bi-currency-dollar me-2"></i>Finanzas
+                </span>
+                <i class="bi @(finanzasExpanded ? "bi-chevron-up" : "bi-chevron-down") transition-icon"></i>
+            </button>
+            
+            <div class="nav-section-content @(finanzasExpanded ? "expanded" : "collapsed")">
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="ingresos">
+                        <i class="bi bi-cash-stack nav-icon"></i>
+                        <span>Otros Ingresos</span>
+                        <span class="help-tooltip" title="Registra ingresos que no sean por ventas (préstamos, etc.)">?</span>
+                    </NavLink>
+                </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="gastos">
-                <i class="bi bi-wallet2 me-3 fs-5"></i>
-                <span>Gastos</span>
-            </NavLink>
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="gastos">
+                        <i class="bi bi-wallet2 nav-icon"></i>
+                        <span>Gastos</span>
+                        <span class="help-tooltip" title="Registra gastos del negocio (luz, agua, renta, etc.)">?</span>
+                    </NavLink>
+                </div>
+            </div>
         </div>
     </nav>
 </div>
 
-<style>
-    .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-    }
-    .nav-link.active {
-        background-color: #0d6efd !important;
-    }
-</style>
+@code {
+    private bool ventasExpanded = true;
+    private bool catalogoExpanded = true;
+    private bool comprasExpanded = true;
+    private bool contactosExpanded = true;
+    private bool finanzasExpanded = true;
+}
 
