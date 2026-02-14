@@ -1,4 +1,4 @@
-@page "/historial-compras"
+ï»¿@page "/historial-compras"
 @inject IPurchaseService PurchaseService
 @rendermode InteractiveServer
 
@@ -18,17 +18,26 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <label class="form-label">Fecha Inicio</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="startDate" />
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <label class="form-label">Fecha Fin</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="endDate" />
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select form-select-lg" @bind="filterStatus">
+                        <option value="all">Todos</option>
+                        <option value="pending">Con saldo pendiente</option>
+                        <option value="notreceived">Sin recibir</option>
+                        <option value="completed">Completadas</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
                     <button class="btn btn-primary btn-lg w-100" @onclick="FilterPurchases">
                         <i class="bi bi-search me-2"></i>Filtrar
                     </button>
@@ -39,27 +48,35 @@
 
     <!-- Resumen -->
     <div class="row g-4 mb-4">
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-success text-white">
                 <div class="card-body text-center">
                     <h6 class="opacity-75 mb-1">Total Compras</h6>
-                    <h2 class="mb-0">@purchases.Count</h2>
+                    <h2 class="mb-0">@filteredPurchases.Count()</h2>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">InversiÃ³n Total</h6>
+                    <h2 class="mb-0">@filteredPurchases.Sum(p => p.Total).ToString("C2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-warning">
                 <div class="card-body text-center">
-                    <h6 class="opacity-75 mb-1">Inversión Total</h6>
-                    <h2 class="mb-0">@purchases.Sum(p => p.Total).ToString("C2")</h2>
+                    <h6 class="opacity-75 mb-1">Pendiente de Pago</h6>
+                    <h2 class="mb-0">@filteredPurchases.Sum(p => p.PendingBalance).ToString("C2")</h2>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-info text-white">
                 <div class="card-body text-center">
-                    <h6 class="opacity-75 mb-1">Promedio por Compra</h6>
-                    <h2 class="mb-0">@(purchases.Any() ? (purchases.Sum(p => p.Total) / purchases.Count).ToString("C2") : "$0.00")</h2>
+                    <h6 class="opacity-75 mb-1">Sin Recibir</h6>
+                    <h2 class="mb-0">@filteredPurchases.Count(p => !p.ProductReceived)</h2>
                 </div>
             </div>
         </div>
@@ -73,12 +90,12 @@
             </div>
         </div>
     }
-    else if (!purchases.Any())
+    else if (!filteredPurchases.Any())
     {
         <div class="text-center py-5">
             <i class="bi bi-bag text-muted" style="font-size: 4rem;"></i>
             <h4 class="text-muted mt-3">No hay compras registradas</h4>
-            <p class="text-muted">Las compras que realices aparecerán aquí</p>
+            <p class="text-muted">Las compras que realices aparecerÃ¡n aquÃ­</p>
             <a href="/compras" class="btn btn-success btn-lg mt-3">
                 <i class="bi bi-plus-lg me-2"></i>Realizar Primera Compra
             </a>
@@ -87,10 +104,10 @@
     else
     {
         <div class="row g-3">
-            @foreach (var purchase in purchases)
+            @foreach (var purchase in filteredPurchases)
             {
                 <div class="col-12">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm @(purchase.PendingBalance > 0 || !purchase.ProductReceived ? "border-start border-warning border-4" : "")">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-12 col-md-2">
@@ -104,29 +121,58 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-6 col-md-2">
                                     <small class="text-muted d-block">Proveedor</small>
                                     <strong>@purchase.SupplierName</strong>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    <small class="text-muted d-block">Método de Pago</small>
-                                    <span class="badge @GetPaymentMethodBadgeClass(purchase.PaymentMethod)">
-                                        @GetPaymentMethodName(purchase.PaymentMethod)
-                                    </span>
+                                <div class="col-6 col-md-2">
+                                    <small class="text-muted d-block">Estado</small>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if (purchase.PendingBalance > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock me-1"></i>Debo @purchase.PendingBalance.ToString("C2")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Pagado
+                                            </span>
+                                        }
+                                        @if (!purchase.ProductReceived)
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-box me-1"></i>Sin recibir
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    <small class="text-muted d-block">Items</small>
-                                    <span class="badge bg-secondary">@purchase.Items.Count</span>
+                                <div class="col-6 col-md-2">
+                                    <small class="text-muted d-block">Abonado</small>
+                                    <span class="text-success">@purchase.DepositAmount.ToString("C2")</span>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-6 col-md-2">
                                     <small class="text-muted d-block">Total</small>
                                     <h4 class="text-warning mb-0">@purchase.Total.ToString("C2")</h4>
                                 </div>
-                                <div class="col-12 col-md-2 text-end">
-                                    <button class="btn btn-outline-primary me-2" @onclick="() => ToggleDetails(purchase.Id)">
+                                <div class="col-12 col-md-2 text-end mt-2 mt-md-0">
+                                    @if (purchase.PendingBalance > 0)
+                                    {
+                                        <button class="btn btn-success btn-sm me-1" @onclick="() => ShowPaymentModal(purchase)" title="Registrar Abono">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </button>
+                                    }
+                                    @if (!purchase.ProductReceived)
+                                    {
+                                        <button class="btn btn-info btn-sm me-1" @onclick="() => ShowReceivedConfirm(purchase)" title="Marcar como Recibido">
+                                            <i class="bi bi-box-arrow-in-down"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-primary btn-sm me-1" @onclick="() => ToggleDetails(purchase.Id)">
                                         <i class="bi @(expandedPurchaseId == purchase.Id ? "bi-chevron-up" : "bi-chevron-down")"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirm(purchase)">
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirm(purchase)">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -135,13 +181,42 @@
                             @if (expandedPurchaseId == purchase.Id)
                             {
                                 <hr class="my-3" />
-                                @if (!string.IsNullOrEmpty(purchase.Notes))
-                                {
-                                    <div class="alert alert-light mb-3">
-                                        <i class="bi bi-sticky me-2"></i>
-                                        <strong>Notas:</strong> @purchase.Notes
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        @if (!string.IsNullOrEmpty(purchase.Notes))
+                                        {
+                                            <div class="alert alert-light mb-2">
+                                                <i class="bi bi-sticky me-2"></i>
+                                                <strong>Notas:</strong> @purchase.Notes
+                                            </div>
+                                        }
+                                        <div class="d-flex gap-2">
+                                            <span class="badge @GetPaymentMethodBadgeClass(purchase.PaymentMethod)">
+                                                @GetPaymentMethodName(purchase.PaymentMethod)
+                                            </span>
+                                            <span class="badge bg-secondary">@purchase.Items.Count items</span>
+                                        </div>
                                     </div>
-                                }
+                                    <div class="col-md-6">
+                                        <div class="bg-light rounded p-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Total:</span>
+                                                <strong>@purchase.Total.ToString("C2")</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between text-success">
+                                                <span>Abonado:</span>
+                                                <strong>@purchase.DepositAmount.ToString("C2")</strong>
+                                            </div>
+                                            @if (purchase.PendingBalance > 0)
+                                            {
+                                                <div class="d-flex justify-content-between text-warning">
+                                                    <span>Pendiente:</span>
+                                                    <strong>@purchase.PendingBalance.ToString("C2")</strong>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
                                 <h6 class="text-muted mb-3">Detalle de la compra:</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
@@ -175,6 +250,100 @@
     }
 </div>
 
+<!-- Modal Registrar Abono -->
+@if (showPaymentModal && purchaseForPayment != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-cash-coin me-2"></i>Registrar Pago - Compra #@purchaseForPayment.Id
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showPaymentModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total de la compra:</span>
+                            <strong>@purchaseForPayment.Total.ToString("C2")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Ya abonado:</span>
+                            <strong>@purchaseForPayment.DepositAmount.ToString("C2")</strong>
+                        </div>
+                        <hr class="my-2" />
+                        <div class="d-flex justify-content-between text-warning">
+                            <span>Saldo pendiente:</span>
+                            <strong>@purchaseForPayment.PendingBalance.ToString("C2")</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Monto a pagar</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">â‚¡</span>
+                            <input type="number" step="0.01" min="0" max="@purchaseForPayment.PendingBalance" 
+                                   class="form-control" @bind="paymentAmount" />
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" @onclick="() => paymentAmount = purchaseForPayment.PendingBalance">
+                            <i class="bi bi-check-all me-2"></i>Pagar todo (@purchaseForPayment.PendingBalance.ToString("C2"))
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showPaymentModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-success btn-lg" @onclick="ProcessPayment" disabled="@(paymentAmount <= 0)">
+                        <i class="bi bi-cash-coin me-2"></i>Registrar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal Confirmar RecepciÃ³n -->
+@if (showReceivedModal && purchaseForReceived != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-arrow-in-down me-2"></i>Confirmar RecepciÃ³n
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showReceivedModal = false"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-box-seam text-info" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Â¿Recibir productos de la Compra #@purchaseForReceived.Id?</h4>
+                    <p class="text-muted">Los productos serÃ¡n agregados al inventario.</p>
+                    
+                    <div class="bg-light rounded p-3 text-start">
+                        <h6>Productos a agregar:</h6>
+                        @foreach (var item in purchaseForReceived.Items)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <span>@item.ProductVariantName</span>
+                                <span class="badge bg-success">+@item.Quantity</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showReceivedModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-info btn-lg" @onclick="ProcessReceived">
+                        <i class="bi bi-check-circle me-2"></i>Confirmar RecepciÃ³n
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Modal Confirmar Eliminar -->
 @if (showDeleteModal)
 {
@@ -183,14 +352,24 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar EliminaciÃ³n
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="() => showDeleteModal = false"></button>
                 </div>
                 <div class="modal-body text-center py-4">
                     <i class="bi bi-bag-x text-danger" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">¿Eliminar Compra #@purchaseToDelete?.Id?</h4>
-                    <p class="text-muted">El stock de productos será reducido. Esta acción no se puede deshacer.</p>
+                    <h4 class="mt-3">Â¿Eliminar Compra #@purchaseToDelete?.Id?</h4>
+                    <p class="text-muted">
+                        @if (purchaseToDelete?.ProductReceived == true)
+                        {
+                            <span>El stock de productos serÃ¡ reducido.</span>
+                        }
+                        else
+                        {
+                            <span>Los productos no fueron recibidos, el inventario no se modificarÃ¡.</span>
+                        }
+                        <br/>Esta acciÃ³n no se puede deshacer.
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showDeleteModal = false">Cancelar</button>
@@ -206,11 +385,25 @@
 @code {
     private List<PurchaseDto> purchases = new();
     private PurchaseDto? purchaseToDelete;
+    private PurchaseDto? purchaseForPayment;
+    private PurchaseDto? purchaseForReceived;
     private bool isLoading = true;
     private bool showDeleteModal = false;
+    private bool showPaymentModal = false;
+    private bool showReceivedModal = false;
     private int? expandedPurchaseId = null;
     private DateTime startDate = DateTime.Today.AddDays(-30);
     private DateTime endDate = DateTime.Today;
+    private string filterStatus = "all";
+    private decimal paymentAmount = 0;
+
+    private IEnumerable<PurchaseDto> filteredPurchases => filterStatus switch
+    {
+        "pending" => purchases.Where(p => p.PendingBalance > 0),
+        "notreceived" => purchases.Where(p => !p.ProductReceived),
+        "completed" => purchases.Where(p => p.PendingBalance <= 0 && p.ProductReceived),
+        _ => purchases
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -234,6 +427,42 @@
     private void ToggleDetails(int purchaseId)
     {
         expandedPurchaseId = expandedPurchaseId == purchaseId ? null : purchaseId;
+    }
+
+    private void ShowPaymentModal(PurchaseDto purchase)
+    {
+        purchaseForPayment = purchase;
+        paymentAmount = purchase.PendingBalance;
+        showPaymentModal = true;
+    }
+
+    private async Task ProcessPayment()
+    {
+        if (purchaseForPayment != null && paymentAmount > 0)
+        {
+            await PurchaseService.AddPaymentAsync(purchaseForPayment.Id, paymentAmount);
+            await LoadPurchases();
+        }
+        showPaymentModal = false;
+        purchaseForPayment = null;
+        paymentAmount = 0;
+    }
+
+    private void ShowReceivedConfirm(PurchaseDto purchase)
+    {
+        purchaseForReceived = purchase;
+        showReceivedModal = true;
+    }
+
+    private async Task ProcessReceived()
+    {
+        if (purchaseForReceived != null)
+        {
+            await PurchaseService.MarkAsReceivedAsync(purchaseForReceived.Id);
+            await LoadPurchases();
+        }
+        showReceivedModal = false;
+        purchaseForReceived = null;
     }
 
     private void ShowDeleteConfirm(PurchaseDto purchase)

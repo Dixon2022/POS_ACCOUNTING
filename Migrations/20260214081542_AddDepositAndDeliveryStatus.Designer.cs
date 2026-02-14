@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SilSalon_v._1.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using SilSalon_v._1.Infrastructure.Data;
 namespace SilSalon_v._1.Migrations
 {
     [DbContext(typeof(SalonDbContext))]
-    partial class SalonDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260214081542_AddDepositAndDeliveryStatus")]
+    partial class AddDepositAndDeliveryStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.13");

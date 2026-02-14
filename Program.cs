@@ -7,7 +7,7 @@ using SilSalon_v._1.Infrastructure.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar URLs para acceso desde red local (celular, tablets, etc.)
-builder.WebHost.UseUrls("https://192.168.1.70:5000");
+//builder.WebHost.UseUrls("https://192.168.1.70:5000");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

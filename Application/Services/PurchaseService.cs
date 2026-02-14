@@ -51,16 +51,37 @@ public class PurchaseService : IPurchaseService
         return purchase != null ? MapToDto(purchase) : null;
     }
 
+    public async Task<IEnumerable<PurchaseDto>> GetPendingPaymentsAsync()
+    {
+        return await _context.Purchases
+            .Include(p => p.Supplier)
+            .Include(p => p.Items)
+                .ThenInclude(i => i.ProductVariant)
+                    .ThenInclude(pv => pv.Product)
+            .Where(p => p.PendingBalance > 0 || !p.ProductReceived)
+            .OrderByDescending(p => p.Date)
+            .Select(p => MapToDto(p))
+            .ToListAsync();
+    }
+
     public async Task<PurchaseDto> CreateAsync(PurchaseDto dto)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
+            // Calcular saldo pendiente
+            var total = dto.Items.Sum(i => i.Total);
+            var pendingBalance = total - dto.DepositAmount;
+            if (pendingBalance < 0) pendingBalance = 0;
+
             var purchase = new Purchase
             {
                 Date = dto.Date,
                 SupplierId = dto.SupplierId,
-                Total = dto.Items.Sum(i => i.Total),
+                Total = total,
+                DepositAmount = dto.DepositAmount,
+                PendingBalance = pendingBalance,
+                ProductReceived = dto.ProductReceived,
                 PaymentMethod = dto.PaymentMethod,
                 Notes = dto.Notes
             };
@@ -81,15 +102,18 @@ public class PurchaseService : IPurchaseService
 
                 _context.PurchaseItems.Add(purchaseItem);
 
-                // Incrementar stock
-                var variant = await _context.ProductVariants.FindAsync(itemDto.ProductVariantId);
-                if (variant != null)
+                // Incrementar stock solo si el producto fue recibido
+                if (dto.ProductReceived)
                 {
-                    variant.Stock += itemDto.Quantity;
-                    // Actualizar precio de costo si cambió
-                    if (itemDto.UnitCost > 0)
+                    var variant = await _context.ProductVariants.FindAsync(itemDto.ProductVariantId);
+                    if (variant != null)
                     {
-                        variant.CostPrice = itemDto.UnitCost;
+                        variant.Stock += itemDto.Quantity;
+                        // Actualizar precio de costo si cambió
+                        if (itemDto.UnitCost > 0)
+                        {
+                            variant.CostPrice = itemDto.UnitCost;
+                        }
                     }
                 }
             }
@@ -98,6 +122,7 @@ public class PurchaseService : IPurchaseService
             await transaction.CommitAsync();
 
             dto.Id = purchase.Id;
+            dto.PendingBalance = pendingBalance;
             return dto;
         }
         catch
@@ -105,6 +130,60 @@ public class PurchaseService : IPurchaseService
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<PurchaseDto?> AddPaymentAsync(int purchaseId, decimal amount)
+    {
+        var purchase = await _context.Purchases
+            .Include(p => p.Supplier)
+            .Include(p => p.Items)
+                .ThenInclude(i => i.ProductVariant)
+                    .ThenInclude(pv => pv.Product)
+            .FirstOrDefaultAsync(p => p.Id == purchaseId);
+
+        if (purchase == null) return null;
+
+        // Agregar el abono al monto ya pagado
+        purchase.DepositAmount += amount;
+        
+        // Recalcular saldo pendiente
+        purchase.PendingBalance = purchase.Total - purchase.DepositAmount;
+        if (purchase.PendingBalance < 0) purchase.PendingBalance = 0;
+
+        await _context.SaveChangesAsync();
+        return MapToDto(purchase);
+    }
+
+    public async Task<PurchaseDto?> MarkAsReceivedAsync(int purchaseId)
+    {
+        var purchase = await _context.Purchases
+            .Include(p => p.Supplier)
+            .Include(p => p.Items)
+                .ThenInclude(i => i.ProductVariant)
+            .FirstOrDefaultAsync(p => p.Id == purchaseId);
+
+        if (purchase == null || purchase.ProductReceived) return null;
+
+        // Marcar como recibido
+        purchase.ProductReceived = true;
+
+        // Agregar al inventario ahora que se recibe
+        foreach (var item in purchase.Items)
+        {
+            var variant = await _context.ProductVariants.FindAsync(item.ProductVariantId);
+            if (variant != null)
+            {
+                variant.Stock += item.Quantity;
+                // Actualizar precio de costo
+                if (item.UnitCost > 0)
+                {
+                    variant.CostPrice = item.UnitCost;
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return MapToDto(purchase);
     }
 
     public async Task DeleteAsync(int id)
@@ -115,14 +194,17 @@ public class PurchaseService : IPurchaseService
 
         if (purchase != null)
         {
-            // Revertir stock
-            foreach (var item in purchase.Items)
+            // Revertir stock solo si el producto fue recibido
+            if (purchase.ProductReceived)
             {
-                var variant = await _context.ProductVariants.FindAsync(item.ProductVariantId);
-                if (variant != null)
+                foreach (var item in purchase.Items)
                 {
-                    variant.Stock -= item.Quantity;
-                    if (variant.Stock < 0) variant.Stock = 0;
+                    var variant = await _context.ProductVariants.FindAsync(item.ProductVariantId);
+                    if (variant != null)
+                    {
+                        variant.Stock -= item.Quantity;
+                        if (variant.Stock < 0) variant.Stock = 0;
+                    }
                 }
             }
 
@@ -138,6 +220,9 @@ public class PurchaseService : IPurchaseService
         SupplierId = purchase.SupplierId,
         SupplierName = purchase.Supplier?.Name,
         Total = purchase.Total,
+        DepositAmount = purchase.DepositAmount,
+        PendingBalance = purchase.PendingBalance,
+        ProductReceived = purchase.ProductReceived,
         PaymentMethod = purchase.PaymentMethod,
         Notes = purchase.Notes,
         Items = purchase.Items.Select(i => new PurchaseItemDto

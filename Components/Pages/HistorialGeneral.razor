@@ -1,4 +1,4 @@
-@page "/historial-general"
+Ôªø@page "/historial-general"
 @inject ISaleService SaleService
 @inject IPurchaseService PurchaseService
 @inject IExpenseService ExpenseService
@@ -101,7 +101,7 @@
                         <i class="bi bi-list-ol me-1"></i>Total Movimientos
                     </h6>
                     <h2 class="mb-0">@filteredMovements.Count</h2>
-                    <small class="opacity-75">En el perÌodo</small>
+                    <small class="opacity-75">En el per√≠odo</small>
                 </div>
             </div>
         </div>
@@ -120,7 +120,7 @@
         <div class="text-center py-5">
             <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
             <h4 class="text-muted mt-3">No hay movimientos registrados</h4>
-            <p class="text-muted">Los movimientos financieros aparecer·n aquÌ</p>
+            <p class="text-muted">Los movimientos financieros aparecer√°n aqu√≠</p>
         </div>
     }
     else
@@ -134,7 +134,7 @@
                             <tr>
                                 <th style="width: 140px;">Fecha</th>
                                 <th style="width: 120px;">Tipo</th>
-                                <th>DescripciÛn</th>
+                                <th>Descripci√≥n</th>
                                 <th style="width: 150px;">Relacionado</th>
                                 <th style="width: 140px;" class="text-end">Monto</th>
                             </tr>
@@ -314,7 +314,7 @@
             filtered = filtered.Where(m => !m.IsIncome);
         }
 
-        // Filtrar por tipo especÌfico
+        // Filtrar por tipo espec√≠fico
         if (!string.IsNullOrEmpty(selectedType))
         {
             var type = Enum.Parse<FinancialMovementType>(selectedType);

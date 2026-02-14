@@ -1,4 +1,4 @@
-@page "/historial-ventas"
+ï»¿@page "/historial-ventas"
 @inject ISaleService SaleService
 @inject ICustomerService CustomerService
 @rendermode InteractiveServer
@@ -19,12 +19,12 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-2">
                     <label class="form-label">Fecha Inicio</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="startDate" />
                 </div>
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-2">
                     <label class="form-label">Fecha Fin</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="endDate" />
@@ -40,6 +40,15 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select form-select-lg" @bind="filterStatus">
+                        <option value="all">Todos</option>
+                        <option value="pending">Con saldo pendiente</option>
+                        <option value="notdelivered">Sin entregar</option>
+                        <option value="completed">Completadas</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
                     <button class="btn btn-primary btn-lg w-100" @onclick="FilterSales">
                         <i class="bi bi-search me-2"></i>Filtrar
                     </button>
@@ -50,27 +59,35 @@
 
     <!-- Resumen -->
     <div class="row g-4 mb-4">
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-primary text-white">
                 <div class="card-body text-center">
                     <h6 class="opacity-75 mb-1">Total Ventas</h6>
-                    <h2 class="mb-0">@sales.Count</h2>
+                    <h2 class="mb-0">@filteredSales.Count()</h2>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-success text-white">
                 <div class="card-body text-center">
                     <h6 class="opacity-75 mb-1">Ingresos</h6>
-                    <h2 class="mb-0">@sales.Sum(s => s.Total).ToString("C2")</h2>
+                    <h2 class="mb-0">@filteredSales.Sum(s => s.Total).ToString("C2")</h2>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm bg-warning">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">Pendiente de Cobro</h6>
+                    <h2 class="mb-0">@filteredSales.Sum(s => s.PendingBalance).ToString("C2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm bg-info text-white">
                 <div class="card-body text-center">
-                    <h6 class="opacity-75 mb-1">Promedio por Venta</h6>
-                    <h2 class="mb-0">@(sales.Any() ? (sales.Sum(s => s.Total) / sales.Count).ToString("C2") : "$0.00")</h2>
+                    <h6 class="opacity-75 mb-1">Sin Entregar</h6>
+                    <h2 class="mb-0">@filteredSales.Count(s => !s.ProductDelivered)</h2>
                 </div>
             </div>
         </div>
@@ -84,12 +101,12 @@
             </div>
         </div>
     }
-    else if (!sales.Any())
+    else if (!filteredSales.Any())
     {
         <div class="text-center py-5">
             <i class="bi bi-receipt text-muted" style="font-size: 4rem;"></i>
             <h4 class="text-muted mt-3">No hay ventas registradas</h4>
-            <p class="text-muted">Las ventas que realices aparecerán aquí</p>
+            <p class="text-muted">Las ventas que realices aparecerÃ¡n aquÃ­</p>
             <a href="/ventas" class="btn btn-primary btn-lg mt-3">
                 <i class="bi bi-plus-lg me-2"></i>Realizar Primera Venta
             </a>
@@ -98,10 +115,10 @@
     else
     {
         <div class="row g-3">
-            @foreach (var sale in sales)
+            @foreach (var sale in filteredSales)
             {
                 <div class="col-12">
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm @(sale.PendingBalance > 0 || !sale.ProductDelivered ? "border-start border-warning border-4" : "")">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-12 col-md-2">
@@ -115,29 +132,58 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-6 col-md-2">
                                     <small class="text-muted d-block">Cliente</small>
                                     <strong>@(sale.CustomerName ?? "Venta General")</strong>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    <small class="text-muted d-block">Método de Pago</small>
-                                    <span class="badge @GetPaymentMethodBadgeClass(sale.PaymentMethod)">
-                                        @GetPaymentMethodName(sale.PaymentMethod)
-                                    </span>
+                                <div class="col-6 col-md-2">
+                                    <small class="text-muted d-block">Estado</small>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if (sale.PendingBalance > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock me-1"></i>Debe @sale.PendingBalance.ToString("C2")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Pagado
+                                            </span>
+                                        }
+                                        @if (!sale.ProductDelivered)
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-box me-1"></i>Sin entregar
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-2">
-                                    <small class="text-muted d-block">Items</small>
-                                    <span class="badge bg-secondary">@sale.Items.Count</span>
+                                <div class="col-6 col-md-2">
+                                    <small class="text-muted d-block">Abonado</small>
+                                    <span class="text-success">@sale.DepositAmount.ToString("C2")</span>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-6 col-md-2">
                                     <small class="text-muted d-block">Total</small>
-                                    <h4 class="text-success mb-0">@sale.Total.ToString("C2")</h4>
+                                    <h4 class="text-primary mb-0">@sale.Total.ToString("C2")</h4>
                                 </div>
-                                <div class="col-12 col-md-2 text-end">
-                                    <button class="btn btn-outline-primary me-2" @onclick="() => ToggleDetails(sale.Id)">
+                                <div class="col-12 col-md-2 text-end mt-2 mt-md-0">
+                                    @if (sale.PendingBalance > 0)
+                                    {
+                                        <button class="btn btn-success btn-sm me-1" @onclick="() => ShowPaymentModal(sale)" title="Registrar Abono">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </button>
+                                    }
+                                    @if (!sale.ProductDelivered)
+                                    {
+                                        <button class="btn btn-info btn-sm me-1" @onclick="() => ShowDeliveryConfirm(sale)" title="Marcar como Entregado">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-primary btn-sm me-1" @onclick="() => ToggleDetails(sale.Id)">
                                         <i class="bi @(expandedSaleId == sale.Id ? "bi-chevron-up" : "bi-chevron-down")"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger" @onclick="() => ShowDeleteConfirm(sale)">
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirm(sale)">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -146,13 +192,42 @@
                             @if (expandedSaleId == sale.Id)
                             {
                                 <hr class="my-3" />
-                                @if (!string.IsNullOrEmpty(sale.Notes))
-                                {
-                                    <div class="alert alert-light mb-3">
-                                        <i class="bi bi-sticky me-2"></i>
-                                        <strong>Notas:</strong> @sale.Notes
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        @if (!string.IsNullOrEmpty(sale.Notes))
+                                        {
+                                            <div class="alert alert-light mb-2">
+                                                <i class="bi bi-sticky me-2"></i>
+                                                <strong>Notas:</strong> @sale.Notes
+                                            </div>
+                                        }
+                                        <div class="d-flex gap-2">
+                                            <span class="badge @GetPaymentMethodBadgeClass(sale.PaymentMethod)">
+                                                @GetPaymentMethodName(sale.PaymentMethod)
+                                            </span>
+                                            <span class="badge bg-secondary">@sale.Items.Count items</span>
+                                        </div>
                                     </div>
-                                }
+                                    <div class="col-md-6">
+                                        <div class="bg-light rounded p-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Total:</span>
+                                                <strong>@sale.Total.ToString("C2")</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between text-success">
+                                                <span>Abonado:</span>
+                                                <strong>@sale.DepositAmount.ToString("C2")</strong>
+                                            </div>
+                                            @if (sale.PendingBalance > 0)
+                                            {
+                                                <div class="d-flex justify-content-between text-warning">
+                                                    <span>Pendiente:</span>
+                                                    <strong>@sale.PendingBalance.ToString("C2")</strong>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
                                 <h6 class="text-muted mb-3">Detalle de la venta:</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
@@ -192,6 +267,100 @@
     }
 </div>
 
+<!-- Modal Registrar Abono -->
+@if (showPaymentModal && saleForPayment != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-cash-coin me-2"></i>Registrar Abono - Venta #@saleForPayment.Id
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showPaymentModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-light rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total de la venta:</span>
+                            <strong>@saleForPayment.Total.ToString("C2")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Ya abonado:</span>
+                            <strong>@saleForPayment.DepositAmount.ToString("C2")</strong>
+                        </div>
+                        <hr class="my-2" />
+                        <div class="d-flex justify-content-between text-warning">
+                            <span>Saldo pendiente:</span>
+                            <strong>@saleForPayment.PendingBalance.ToString("C2")</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Monto a abonar</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">â‚¡</span>
+                            <input type="number" step="0.01" min="0" max="@saleForPayment.PendingBalance" 
+                                   class="form-control" @bind="paymentAmount" />
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" @onclick="() => paymentAmount = saleForPayment.PendingBalance">
+                            <i class="bi bi-check-all me-2"></i>Pagar todo (@saleForPayment.PendingBalance.ToString("C2"))
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showPaymentModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-success btn-lg" @onclick="ProcessPayment" disabled="@(paymentAmount <= 0)">
+                        <i class="bi bi-cash-coin me-2"></i>Registrar Abono
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal Confirmar Entrega -->
+@if (showDeliveryModal && saleForDelivery != null)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-arrow-right me-2"></i>Confirmar Entrega
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showDeliveryModal = false"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-box-seam text-info" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Â¿Entregar productos de la Venta #@saleForDelivery.Id?</h4>
+                    <p class="text-muted">Los productos serÃ¡n descontados del inventario.</p>
+                    
+                    <div class="bg-light rounded p-3 text-start">
+                        <h6>Productos a descontar:</h6>
+                        @foreach (var item in saleForDelivery.Items.Where(i => i.ItemType == ItemType.Product))
+                        {
+                            <div class="d-flex justify-content-between">
+                                <span>@item.ItemName</span>
+                                <span class="badge bg-warning">-@item.Quantity</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showDeliveryModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-info btn-lg" @onclick="ProcessDelivery">
+                        <i class="bi bi-check-circle me-2"></i>Confirmar Entrega
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Modal Confirmar Eliminar -->
 @if (showDeleteModal)
 {
@@ -200,14 +369,24 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar EliminaciÃ³n
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="() => showDeleteModal = false"></button>
                 </div>
                 <div class="modal-body text-center py-4">
                     <i class="bi bi-receipt-cutoff text-danger" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">¿Eliminar Venta #@saleToDelete?.Id?</h4>
-                    <p class="text-muted">El stock de productos será restaurado. Esta acción no se puede deshacer.</p>
+                    <h4 class="mt-3">Â¿Eliminar Venta #@saleToDelete?.Id?</h4>
+                    <p class="text-muted">
+                        @if (saleToDelete?.ProductDelivered == true)
+                        {
+                            <span>El stock de productos serÃ¡ restaurado.</span>
+                        }
+                        else
+                        {
+                            <span>Los productos no fueron entregados, el inventario no se modificarÃ¡.</span>
+                        }
+                        <br/>Esta acciÃ³n no se puede deshacer.
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showDeleteModal = false">Cancelar</button>
@@ -224,12 +403,26 @@
     private List<SaleDto> sales = new();
     private List<CustomerDto> customers = new();
     private SaleDto? saleToDelete;
+    private SaleDto? saleForPayment;
+    private SaleDto? saleForDelivery;
     private bool isLoading = true;
     private bool showDeleteModal = false;
+    private bool showPaymentModal = false;
+    private bool showDeliveryModal = false;
     private int? expandedSaleId = null;
     private DateTime startDate = DateTime.Today.AddDays(-30);
     private DateTime endDate = DateTime.Today;
     private int? selectedCustomerId = null;
+    private string filterStatus = "all";
+    private decimal paymentAmount = 0;
+
+    private IEnumerable<SaleDto> filteredSales => filterStatus switch
+    {
+        "pending" => sales.Where(s => s.PendingBalance > 0),
+        "notdelivered" => sales.Where(s => !s.ProductDelivered),
+        "completed" => sales.Where(s => s.PendingBalance <= 0 && s.ProductDelivered),
+        _ => sales
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -254,6 +447,42 @@
     private void ToggleDetails(int saleId)
     {
         expandedSaleId = expandedSaleId == saleId ? null : saleId;
+    }
+
+    private void ShowPaymentModal(SaleDto sale)
+    {
+        saleForPayment = sale;
+        paymentAmount = sale.PendingBalance;
+        showPaymentModal = true;
+    }
+
+    private async Task ProcessPayment()
+    {
+        if (saleForPayment != null && paymentAmount > 0)
+        {
+            await SaleService.AddPaymentAsync(saleForPayment.Id, paymentAmount);
+            await LoadData();
+        }
+        showPaymentModal = false;
+        saleForPayment = null;
+        paymentAmount = 0;
+    }
+
+    private void ShowDeliveryConfirm(SaleDto sale)
+    {
+        saleForDelivery = sale;
+        showDeliveryModal = true;
+    }
+
+    private async Task ProcessDelivery()
+    {
+        if (saleForDelivery != null)
+        {
+            await SaleService.MarkAsDeliveredAsync(saleForDelivery.Id);
+            await LoadData();
+        }
+        showDeliveryModal = false;
+        saleForDelivery = null;
     }
 
     private void ShowDeleteConfirm(SaleDto sale)

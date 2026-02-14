@@ -9,9 +9,36 @@ public class SaleDto
     public int? CustomerId { get; set; }
     public string? CustomerName { get; set; }
     public decimal Total { get; set; }
+    
+    /// <summary>
+    /// Monto de abono inicial pagado por el cliente
+    /// </summary>
+    public decimal DepositAmount { get; set; } = 0;
+    
+    /// <summary>
+    /// Saldo pendiente por pagar
+    /// </summary>
+    public decimal PendingBalance { get; set; } = 0;
+    
+    /// <summary>
+    /// Indica si los productos fueron entregados al cliente.
+    /// Si es false, no se descuenta del inventario.
+    /// </summary>
+    public bool ProductDelivered { get; set; } = true;
+    
     public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Efectivo;
     public string? Notes { get; set; }
     public List<SaleItemDto> Items { get; set; } = new();
+    
+    /// <summary>
+    /// Indica si la venta tiene un abono parcial
+    /// </summary>
+    public bool HasDeposit => DepositAmount > 0 && DepositAmount < Total;
+    
+    /// <summary>
+    /// Indica si la venta está pagada completamente
+    /// </summary>
+    public bool IsPaidInFull => PendingBalance <= 0;
 }
 
 public class SaleItemDto
