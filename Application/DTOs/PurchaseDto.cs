@@ -1,3 +1,5 @@
+using SilSalon_v._1.Domain.Enums;
+
 namespace SilSalon_v._1.Application.DTOs;
 
 public class PurchaseDto
@@ -7,6 +9,8 @@ public class PurchaseDto
     public int SupplierId { get; set; }
     public string? SupplierName { get; set; }
     public decimal Total { get; set; }
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Efectivo;
+    public string? Notes { get; set; }
     public List<PurchaseItemDto> Items { get; set; } = new();
 }
 

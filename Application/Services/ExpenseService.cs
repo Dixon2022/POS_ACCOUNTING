@@ -45,7 +45,9 @@ public class ExpenseService : IExpenseService
             Description = dto.Description,
             Amount = dto.Amount,
             Date = dto.Date,
-            Category = dto.Category
+            Category = dto.Category,
+            PaymentMethod = dto.PaymentMethod,
+            Notes = dto.Notes
         };
 
         _context.Expenses.Add(expense);
@@ -64,6 +66,8 @@ public class ExpenseService : IExpenseService
             expense.Amount = dto.Amount;
             expense.Date = dto.Date;
             expense.Category = dto.Category;
+            expense.PaymentMethod = dto.PaymentMethod;
+            expense.Notes = dto.Notes;
             await _context.SaveChangesAsync();
         }
     }
@@ -94,6 +98,8 @@ public class ExpenseService : IExpenseService
         Description = expense.Description,
         Amount = expense.Amount,
         Date = expense.Date,
-        Category = expense.Category
+        Category = expense.Category,
+        PaymentMethod = expense.PaymentMethod,
+        Notes = expense.Notes
     };
 }

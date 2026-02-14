@@ -47,6 +47,31 @@
                     </div>
                 </div>
 
+                <!-- Método de Pago y Notas -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Detalles del Pago</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Método de Pago</label>
+                                <select class="form-select form-select-lg" @bind="currentSale.PaymentMethod">
+                                    <option value="@PaymentMethod.Efectivo">Efectivo</option>
+                                    <option value="@PaymentMethod.SINPE">SINPE</option>
+                                    <option value="@PaymentMethod.Tarjeta">Tarjeta</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Notas (opcional)</label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       placeholder="Detalle adicional..."
+                                       @bind="currentSale.Notes" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Tabs para Servicios y Productos -->
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-0">

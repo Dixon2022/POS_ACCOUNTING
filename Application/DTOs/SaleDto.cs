@@ -9,6 +9,8 @@ public class SaleDto
     public int? CustomerId { get; set; }
     public string? CustomerName { get; set; }
     public decimal Total { get; set; }
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Efectivo;
+    public string? Notes { get; set; }
     public List<SaleItemDto> Items { get; set; } = new();
 }
 

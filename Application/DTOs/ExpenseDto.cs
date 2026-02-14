@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SilSalon_v._1.Domain.Enums;
 
 namespace SilSalon_v._1.Application.DTOs;
 
@@ -17,4 +18,9 @@ public class ExpenseDto
 
     [StringLength(50, ErrorMessage = "La categoría no puede exceder 50 caracteres")]
     public string? Category { get; set; }
+
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Efectivo;
+
+    [StringLength(500, ErrorMessage = "Las notas no pueden exceder 500 caracteres")]
+    public string? Notes { get; set; }
 }

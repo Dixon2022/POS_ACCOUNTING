@@ -97,6 +97,9 @@
                                     {
                                         <span class="badge bg-secondary mb-2">@expense.Category</span>
                                     }
+                                    <span class="badge @GetPaymentMethodBadgeClass(expense.PaymentMethod) mb-2 ms-1">
+                                        @GetPaymentMethodName(expense.PaymentMethod)
+                                    </span>
                                     <h5 class="mb-1">@expense.Description</h5>
                                     <small class="text-muted">
                                         <i class="bi bi-calendar me-1"></i>
@@ -105,6 +108,12 @@
                                 </div>
                                 <h4 class="text-danger mb-0">@expense.Amount.ToString("C2")</h4>
                             </div>
+                            @if (!string.IsNullOrEmpty(expense.Notes))
+                            {
+                                <div class="alert alert-light py-2 mb-2">
+                                    <small><i class="bi bi-sticky me-1"></i>@expense.Notes</small>
+                                </div>
+                            }
                             <hr />
                             <div class="d-flex justify-content-end gap-2">
                                 <button class="btn btn-outline-primary btn-sm" @onclick="() => ShowEditModal(expense)">
@@ -152,20 +161,35 @@
                             </div>
                             <ValidationMessage For="() => currentExpense.Amount" class="text-danger" />
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Categoría</label>
-                            <InputText class="form-control form-control-lg" @bind-Value="currentExpense.Category" 
-                                       placeholder="Ej: Servicios, Renta, Nómina" list="categories-list" />
-                            <datalist id="categories-list">
-                                @foreach (var category in categories)
-                                {
-                                    <option value="@category" />
-                                }
-                            </datalist>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Categoría</label>
+                                <InputText class="form-control form-control-lg" @bind-Value="currentExpense.Category" 
+                                           placeholder="Ej: Servicios, Renta, Nómina" list="categories-list" />
+                                <datalist id="categories-list">
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category" />
+                                    }
+                                </datalist>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Método de Pago</label>
+                                <InputSelect class="form-select form-select-lg" @bind-Value="currentExpense.PaymentMethod">
+                                    <option value="@PaymentMethod.Efectivo">Efectivo</option>
+                                    <option value="@PaymentMethod.SINPE">SINPE</option>
+                                    <option value="@PaymentMethod.Tarjeta">Tarjeta</option>
+                                </InputSelect>
+                            </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 mt-3">
                             <label class="form-label">Fecha</label>
                             <InputDate class="form-control form-control-lg" @bind-Value="currentExpense.Date" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notas (opcional)</label>
+                            <InputTextArea class="form-control" @bind-Value="currentExpense.Notes" 
+                                           placeholder="Detalle adicional..." rows="2" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -262,7 +286,9 @@
             Description = expense.Description,
             Amount = expense.Amount,
             Date = expense.Date,
-            Category = expense.Category
+            Category = expense.Category,
+            PaymentMethod = expense.PaymentMethod,
+            Notes = expense.Notes
         };
         isEditing = true;
         showModal = true;
@@ -305,4 +331,20 @@
         showDeleteModal = false;
         expenseToDelete = null;
     }
+
+    private string GetPaymentMethodName(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "Efectivo",
+        PaymentMethod.SINPE => "SINPE",
+        PaymentMethod.Tarjeta => "Tarjeta",
+        _ => "Desconocido"
+    };
+
+    private string GetPaymentMethodBadgeClass(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "bg-success",
+        PaymentMethod.SINPE => "bg-primary",
+        PaymentMethod.Tarjeta => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 }

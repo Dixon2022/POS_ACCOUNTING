@@ -93,7 +93,7 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-12 col-md-3">
+                                <div class="col-12 col-md-2">
                                     <div class="d-flex align-items-center">
                                         <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
                                             <i class="bi bi-bag text-success fs-4"></i>
@@ -104,9 +104,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-12 col-md-2">
                                     <small class="text-muted d-block">Proveedor</small>
                                     <strong>@purchase.SupplierName</strong>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <small class="text-muted d-block">Método de Pago</small>
+                                    <span class="badge @GetPaymentMethodBadgeClass(purchase.PaymentMethod)">
+                                        @GetPaymentMethodName(purchase.PaymentMethod)
+                                    </span>
                                 </div>
                                 <div class="col-12 col-md-2">
                                     <small class="text-muted d-block">Items</small>
@@ -129,6 +135,13 @@
                             @if (expandedPurchaseId == purchase.Id)
                             {
                                 <hr class="my-3" />
+                                @if (!string.IsNullOrEmpty(purchase.Notes))
+                                {
+                                    <div class="alert alert-light mb-3">
+                                        <i class="bi bi-sticky me-2"></i>
+                                        <strong>Notas:</strong> @purchase.Notes
+                                    </div>
+                                }
                                 <h6 class="text-muted mb-3">Detalle de la compra:</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
@@ -239,4 +252,20 @@
         showDeleteModal = false;
         purchaseToDelete = null;
     }
+
+    private string GetPaymentMethodName(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "Efectivo",
+        PaymentMethod.SINPE => "SINPE",
+        PaymentMethod.Tarjeta => "Tarjeta",
+        _ => "Desconocido"
+    };
+
+    private string GetPaymentMethodBadgeClass(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "bg-success",
+        PaymentMethod.SINPE => "bg-primary",
+        PaymentMethod.Tarjeta => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 }

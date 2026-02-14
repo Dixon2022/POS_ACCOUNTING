@@ -1,5 +1,6 @@
 @page "/historial-ventas"
 @inject ISaleService SaleService
+@inject ICustomerService CustomerService
 @rendermode InteractiveServer
 
 <PageTitle>Historial de Ventas - SilSalon</PageTitle>
@@ -18,17 +19,27 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <label class="form-label">Fecha Inicio</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="startDate" />
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <label class="form-label">Fecha Fin</label>
                     <input type="date" class="form-control form-control-lg" 
                            @bind="endDate" />
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-select form-select-lg" @bind="selectedCustomerId">
+                        <option value="">Todos los clientes</option>
+                        @foreach (var customer in customers)
+                        {
+                            <option value="@customer.Id">@customer.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
                     <button class="btn btn-primary btn-lg w-100" @onclick="FilterSales">
                         <i class="bi bi-search me-2"></i>Filtrar
                     </button>
@@ -93,7 +104,7 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-12 col-md-3">
+                                <div class="col-12 col-md-2">
                                     <div class="d-flex align-items-center">
                                         <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
                                             <i class="bi bi-receipt text-primary fs-4"></i>
@@ -104,9 +115,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-12 col-md-2">
                                     <small class="text-muted d-block">Cliente</small>
                                     <strong>@(sale.CustomerName ?? "Venta General")</strong>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <small class="text-muted d-block">Método de Pago</small>
+                                    <span class="badge @GetPaymentMethodBadgeClass(sale.PaymentMethod)">
+                                        @GetPaymentMethodName(sale.PaymentMethod)
+                                    </span>
                                 </div>
                                 <div class="col-12 col-md-2">
                                     <small class="text-muted d-block">Items</small>
@@ -129,6 +146,13 @@
                             @if (expandedSaleId == sale.Id)
                             {
                                 <hr class="my-3" />
+                                @if (!string.IsNullOrEmpty(sale.Notes))
+                                {
+                                    <div class="alert alert-light mb-3">
+                                        <i class="bi bi-sticky me-2"></i>
+                                        <strong>Notas:</strong> @sale.Notes
+                                    </div>
+                                }
                                 <h6 class="text-muted mb-3">Detalle de la venta:</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
@@ -198,29 +222,32 @@
 
 @code {
     private List<SaleDto> sales = new();
+    private List<CustomerDto> customers = new();
     private SaleDto? saleToDelete;
     private bool isLoading = true;
     private bool showDeleteModal = false;
     private int? expandedSaleId = null;
     private DateTime startDate = DateTime.Today.AddDays(-30);
     private DateTime endDate = DateTime.Today;
+    private int? selectedCustomerId = null;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadSales();
+        await LoadData();
     }
 
-    private async Task LoadSales()
+    private async Task LoadData()
     {
         isLoading = true;
         sales = (await SaleService.GetAllAsync()).ToList();
+        customers = (await CustomerService.GetAllAsync()).ToList();
         isLoading = false;
     }
 
     private async Task FilterSales()
     {
         isLoading = true;
-        sales = (await SaleService.GetByDateRangeAsync(startDate, endDate)).ToList();
+        sales = (await SaleService.GetByDateRangeAndCustomerAsync(startDate, endDate, selectedCustomerId)).ToList();
         isLoading = false;
     }
 
@@ -240,9 +267,25 @@
         if (saleToDelete != null)
         {
             await SaleService.DeleteAsync(saleToDelete.Id);
-            await LoadSales();
+            await LoadData();
         }
         showDeleteModal = false;
         saleToDelete = null;
     }
+
+    private string GetPaymentMethodName(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "Efectivo",
+        PaymentMethod.SINPE => "SINPE",
+        PaymentMethod.Tarjeta => "Tarjeta",
+        _ => "Desconocido"
+    };
+
+    private string GetPaymentMethodBadgeClass(PaymentMethod method) => method switch
+    {
+        PaymentMethod.Efectivo => "bg-success",
+        PaymentMethod.SINPE => "bg-primary",
+        PaymentMethod.Tarjeta => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 }

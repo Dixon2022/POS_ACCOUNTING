@@ -45,6 +45,28 @@ public class SaleService : ISaleService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<SaleDto>> GetByDateRangeAndCustomerAsync(DateTime startDate, DateTime endDate, int? customerId)
+    {
+        var query = _context.Sales
+            .Include(s => s.Customer)
+            .Include(s => s.Items)
+                .ThenInclude(i => i.ProductVariant)
+                    .ThenInclude(pv => pv!.Product)
+            .Include(s => s.Items)
+                .ThenInclude(i => i.Service)
+            .Where(s => s.Date.Date >= startDate.Date && s.Date.Date <= endDate.Date);
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(s => s.CustomerId == customerId.Value);
+        }
+
+        return await query
+            .OrderByDescending(s => s.Date)
+            .Select(s => MapToDto(s))
+            .ToListAsync();
+    }
+
     public async Task<SaleDto?> GetByIdAsync(int id)
     {
         var sale = await _context.Sales
@@ -67,7 +89,9 @@ public class SaleService : ISaleService
             {
                 Date = dto.Date,
                 CustomerId = dto.CustomerId,
-                Total = dto.Items.Sum(i => i.Total)
+                Total = dto.Items.Sum(i => i.Total),
+                PaymentMethod = dto.PaymentMethod,
+                Notes = dto.Notes
             };
 
             _context.Sales.Add(sale);
@@ -143,6 +167,8 @@ public class SaleService : ISaleService
         CustomerId = sale.CustomerId,
         CustomerName = sale.Customer?.Name,
         Total = sale.Total,
+        PaymentMethod = sale.PaymentMethod,
+        Notes = sale.Notes,
         Items = sale.Items.Select(i => new SaleItemDto
         {
             Id = i.Id,

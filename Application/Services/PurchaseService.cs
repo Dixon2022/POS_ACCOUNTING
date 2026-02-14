@@ -60,7 +60,9 @@ public class PurchaseService : IPurchaseService
             {
                 Date = dto.Date,
                 SupplierId = dto.SupplierId,
-                Total = dto.Items.Sum(i => i.Total)
+                Total = dto.Items.Sum(i => i.Total),
+                PaymentMethod = dto.PaymentMethod,
+                Notes = dto.Notes
             };
 
             _context.Purchases.Add(purchase);
@@ -136,6 +138,8 @@ public class PurchaseService : IPurchaseService
         SupplierId = purchase.SupplierId,
         SupplierName = purchase.Supplier?.Name,
         Total = purchase.Total,
+        PaymentMethod = purchase.PaymentMethod,
+        Notes = purchase.Notes,
         Items = purchase.Items.Select(i => new PurchaseItemDto
         {
             Id = i.Id,
