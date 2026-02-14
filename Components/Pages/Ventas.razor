@@ -117,7 +117,7 @@
                                                     <h6 class="mb-1">@service.Name</h6>
                                                     <span class="text-primary fw-bold">@service.BasePrice.ToString("C2")</span>
                                                 </div>
-                                                <button class="btn btn-primary btn-lg rounded-circle" 
+                                                <button class="btn btn-primary btn-lg rounded-circle d-flex justify-content-center align-items-center" 
                                                         @onclick="() => AddService(service)"
                                                         style="width: 50px; height: 50px;">
                                                     <i class="bi bi-plus"></i>
@@ -145,13 +145,13 @@
                                     <div class="col-12 col-sm-6">
                                         <div class="card h-100 border @(variant.Stock == 0 ? "opacity-50" : "") @(IsProductInCart(variant.Id) ? "border-primary bg-primary bg-opacity-10" : "")">
                                             <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <div>
                                                         <small class="text-muted">@variant.ProductName</small>
                                                         <h6 class="mb-1">@variant.Name</h6>
                                                         <span class="text-primary fw-bold">@variant.SalePrice.ToString("C2")</span>
                                                     </div>
-                                                    <button class="btn btn-primary btn-lg rounded-circle" 
+                                                    <button class="btn btn-primary btn-lg rounded-circle d-flex justify-content-center align-items-center" 
                                                             @onclick="() => AddProduct(variant)"
                                                             disabled="@(variant.Stock == 0)"
                                                             style="width: 50px; height: 50px;">
@@ -197,6 +197,29 @@
                                 <span class="badge bg-white text-primary ms-2">@currentSale.Items.Count</span>
                             }
                         </h5>
+                    </div>
+                    <!-- Botones arriba -->
+                    <div class="card-body border-bottom bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Total:</h4>
+                            <h3 class="mb-0 text-primary">@currentSale.Total.ToString("C2")</h3>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" 
+                                    @onclick="CompleteSale"
+                                    disabled="@(!currentSale.Items.Any() || isSaving)">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="bi bi-check-circle me-2"></i>Completar Venta
+                            </button>
+                            <button class="btn btn-outline-danger btn-lg" 
+                                    @onclick="ClearCart"
+                                    disabled="@(!currentSale.Items.Any())">
+                                <i class="bi bi-x-circle me-2"></i>Vaciar Carrito
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body" style="max-height: 400px; overflow-y: auto;">
                         @if (!currentSale.Items.Any())
@@ -253,28 +276,6 @@
                                 </div>
                             }
                         }
-                    </div>
-                    <div class="card-footer bg-light">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="mb-0">Total:</h4>
-                            <h3 class="mb-0 text-primary">@currentSale.Total.ToString("C2")</h3>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" 
-                                    @onclick="CompleteSale"
-                                    disabled="@(!currentSale.Items.Any() || isSaving)">
-                                @if (isSaving)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                }
-                                <i class="bi bi-check-circle me-2"></i>Completar Venta
-                            </button>
-                            <button class="btn btn-outline-danger btn-lg" 
-                                    @onclick="ClearCart"
-                                    disabled="@(!currentSale.Items.Any())">
-                                <i class="bi bi-x-circle me-2"></i>Vaciar Carrito
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

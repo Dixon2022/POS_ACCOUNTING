@@ -1,0 +1,399 @@
+@page "/historial-general"
+@inject ISaleService SaleService
+@inject IPurchaseService PurchaseService
+@inject IExpenseService ExpenseService
+@inject IIncomeService IncomeService
+@rendermode InteractiveServer
+
+<PageTitle>Historial General - SilSalon</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-journal-text me-2"></i>Historial General
+        </h2>
+        <div class="d-flex gap-2">
+            <button class="btn @(showIngresos && showEgresos ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="ShowAll">
+                <i class="bi bi-list-ul me-1"></i>Todos
+            </button>
+            <button class="btn @(showIngresos && !showEgresos ? "btn-success" : "btn-outline-success")" 
+                    @onclick="ShowOnlyIngresos">
+                <i class="bi bi-arrow-down-circle me-1"></i>Ingresos
+            </button>
+            <button class="btn @(!showIngresos && showEgresos ? "btn-danger" : "btn-outline-danger")" 
+                    @onclick="ShowOnlyEgresos">
+                <i class="bi bi-arrow-up-circle me-1"></i>Egresos
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control form-control-lg" @bind="startDate" />
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control form-control-lg" @bind="endDate" />
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select class="form-select form-select-lg" @bind="selectedType">
+                        <option value="">Todos los tipos</option>
+                        <option value="Sale">Ventas</option>
+                        <option value="Purchase">Compras</option>
+                        <option value="Expense">Gastos</option>
+                        <option value="Income">Otros Ingresos</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <button class="btn btn-primary btn-lg w-100" @onclick="FilterMovements">
+                        <i class="bi bi-search me-2"></i>Filtrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-3">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">
+                        <i class="bi bi-arrow-down-circle me-1"></i>Total Ingresos
+                    </h6>
+                    <h2 class="mb-0">@totalIngresos.ToString("C2")</h2>
+                    <small class="opacity-75">@countIngresos movimientos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">
+                        <i class="bi bi-arrow-up-circle me-1"></i>Total Egresos
+                    </h6>
+                    <h2 class="mb-0">@totalEgresos.ToString("C2")</h2>
+                    <small class="opacity-75">@countEgresos movimientos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card border-0 shadow-sm @(balance >= 0 ? "bg-primary" : "bg-warning") text-white">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">
+                        <i class="bi bi-wallet2 me-1"></i>Balance
+                    </h6>
+                    <h2 class="mb-0">@balance.ToString("C2")</h2>
+                    <small class="opacity-75">@(balance >= 0 ? "Positivo" : "Negativo")</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card border-0 shadow-sm bg-info text-white">
+                <div class="card-body text-center">
+                    <h6 class="opacity-75 mb-1">
+                        <i class="bi bi-list-ol me-1"></i>Total Movimientos
+                    </h6>
+                    <h2 class="mb-0">@filteredMovements.Count</h2>
+                    <small class="opacity-75">En el período</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else if (!filteredMovements.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
+            <h4 class="text-muted mt-3">No hay movimientos registrados</h4>
+            <p class="text-muted">Los movimientos financieros aparecerán aquí</p>
+        </div>
+    }
+    else
+    {
+        <!-- Lista de movimientos -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 140px;">Fecha</th>
+                                <th style="width: 120px;">Tipo</th>
+                                <th>Descripción</th>
+                                <th style="width: 150px;">Relacionado</th>
+                                <th style="width: 140px;" class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var movement in filteredMovements)
+                            {
+                                <tr class="@(movement.IsIncome ? "" : "table-light")">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="@GetIconBgClass(movement.Type) rounded-circle p-2 me-2">
+                                                <i class="bi @GetIconClass(movement.Type) @GetIconColorClass(movement.Type)"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">@movement.Date.ToString("dd/MM/yyyy")</small>
+                                                <small class="text-muted">@movement.Date.ToString("HH:mm")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetTypeBadgeClass(movement.Type)">
+                                            @GetTypeName(movement.Type)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>@movement.Description</strong>
+                                            @if (!string.IsNullOrEmpty(movement.Category))
+                                            {
+                                                <span class="badge bg-secondary ms-2">@movement.Category</span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(movement.Notes))
+                                        {
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-sticky me-1"></i>@movement.Notes
+                                            </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(movement.RelatedEntity))
+                                        {
+                                            <small class="text-muted">
+                                                <i class="bi @GetRelatedIcon(movement.Type) me-1"></i>@movement.RelatedEntity
+                                            </small>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <h5 class="mb-0 @(movement.IsIncome ? "text-success" : "text-danger")">
+                                            @(movement.IsIncome ? "+" : "-")@movement.Amount.ToString("C2")
+                                        </h5>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<FinancialMovementDto> allMovements = new();
+    private List<FinancialMovementDto> filteredMovements = new();
+    private bool isLoading = true;
+    private DateTime startDate = DateTime.Today.AddDays(-30);
+    private DateTime endDate = DateTime.Today;
+    private string selectedType = "";
+    private bool showIngresos = true;
+    private bool showEgresos = true;
+
+    private decimal totalIngresos => filteredMovements.Where(m => m.IsIncome).Sum(m => m.Amount);
+    private decimal totalEgresos => filteredMovements.Where(m => !m.IsIncome).Sum(m => m.Amount);
+    private decimal balance => totalIngresos - totalEgresos;
+    private int countIngresos => filteredMovements.Count(m => m.IsIncome);
+    private int countEgresos => filteredMovements.Count(m => !m.IsIncome);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+
+        var movements = new List<FinancialMovementDto>();
+
+        // Cargar Ventas
+        var sales = await SaleService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
+        foreach (var sale in sales)
+        {
+            movements.Add(new FinancialMovementDto
+            {
+                Id = sale.Id,
+                Date = sale.Date,
+                Type = FinancialMovementType.Sale,
+                Description = $"Venta #{sale.Id} - {sale.Items.Count} item(s)",
+                Amount = sale.Total,
+                IsIncome = true,
+                RelatedEntity = sale.CustomerName ?? "Venta General",
+                Notes = sale.Notes
+            });
+        }
+
+        // Cargar Compras
+        var purchases = await PurchaseService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
+        foreach (var purchase in purchases)
+        {
+            movements.Add(new FinancialMovementDto
+            {
+                Id = purchase.Id,
+                Date = purchase.Date,
+                Type = FinancialMovementType.Purchase,
+                Description = $"Compra #{purchase.Id} - {purchase.Items.Count} item(s)",
+                Amount = purchase.Total,
+                IsIncome = false,
+                RelatedEntity = purchase.SupplierName,
+                Notes = purchase.Notes
+            });
+        }
+
+        // Cargar Gastos
+        var expenses = await ExpenseService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
+        foreach (var expense in expenses)
+        {
+            movements.Add(new FinancialMovementDto
+            {
+                Id = expense.Id,
+                Date = expense.Date,
+                Type = FinancialMovementType.Expense,
+                Description = expense.Description,
+                Amount = expense.Amount,
+                IsIncome = false,
+                Category = expense.Category,
+                Notes = expense.Notes
+            });
+        }
+
+        // Cargar Otros Ingresos
+        var incomes = await IncomeService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
+        foreach (var income in incomes)
+        {
+            movements.Add(new FinancialMovementDto
+            {
+                Id = income.Id,
+                Date = income.Date,
+                Type = FinancialMovementType.Income,
+                Description = income.Description,
+                Amount = income.Amount,
+                IsIncome = true
+            });
+        }
+
+        allMovements = movements.OrderByDescending(m => m.Date).ToList();
+        ApplyFilters();
+        isLoading = false;
+    }
+
+    private async Task FilterMovements()
+    {
+        await LoadData();
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = allMovements.AsEnumerable();
+
+        // Filtrar por tipo de movimiento (ingreso/egreso)
+        if (showIngresos && !showEgresos)
+        {
+            filtered = filtered.Where(m => m.IsIncome);
+        }
+        else if (!showIngresos && showEgresos)
+        {
+            filtered = filtered.Where(m => !m.IsIncome);
+        }
+
+        // Filtrar por tipo específico
+        if (!string.IsNullOrEmpty(selectedType))
+        {
+            var type = Enum.Parse<FinancialMovementType>(selectedType);
+            filtered = filtered.Where(m => m.Type == type);
+        }
+
+        filteredMovements = filtered.ToList();
+    }
+
+    private void ShowAll()
+    {
+        showIngresos = true;
+        showEgresos = true;
+        ApplyFilters();
+    }
+
+    private void ShowOnlyIngresos()
+    {
+        showIngresos = true;
+        showEgresos = false;
+        ApplyFilters();
+    }
+
+    private void ShowOnlyEgresos()
+    {
+        showIngresos = false;
+        showEgresos = true;
+        ApplyFilters();
+    }
+
+    private string GetTypeName(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "Venta",
+        FinancialMovementType.Purchase => "Compra",
+        FinancialMovementType.Expense => "Gasto",
+        FinancialMovementType.Income => "Ingreso",
+        _ => "Desconocido"
+    };
+
+    private string GetTypeBadgeClass(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "bg-success",
+        FinancialMovementType.Purchase => "bg-warning text-dark",
+        FinancialMovementType.Expense => "bg-danger",
+        FinancialMovementType.Income => "bg-primary",
+        _ => "bg-secondary"
+    };
+
+    private string GetIconClass(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "bi-cart-check",
+        FinancialMovementType.Purchase => "bi-bag",
+        FinancialMovementType.Expense => "bi-wallet2",
+        FinancialMovementType.Income => "bi-cash-stack",
+        _ => "bi-question"
+    };
+
+    private string GetIconColorClass(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "text-success",
+        FinancialMovementType.Purchase => "text-warning",
+        FinancialMovementType.Expense => "text-danger",
+        FinancialMovementType.Income => "text-primary",
+        _ => "text-secondary"
+    };
+
+    private string GetIconBgClass(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "bg-success bg-opacity-10",
+        FinancialMovementType.Purchase => "bg-warning bg-opacity-10",
+        FinancialMovementType.Expense => "bg-danger bg-opacity-10",
+        FinancialMovementType.Income => "bg-primary bg-opacity-10",
+        _ => "bg-secondary bg-opacity-10"
+    };
+
+    private string GetRelatedIcon(FinancialMovementType type) => type switch
+    {
+        FinancialMovementType.Sale => "bi-person",
+        FinancialMovementType.Purchase => "bi-truck",
+        _ => "bi-tag"
+    };
+}

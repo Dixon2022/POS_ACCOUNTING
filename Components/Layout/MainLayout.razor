@@ -1,27 +1,40 @@
 ﻿@inherits LayoutComponentBase
 
+<!-- Overlay para cerrar menú en móvil -->
+<div id="sidebar-overlay" class="sidebar-overlay d-lg-none d-none" onclick="window.toggleSidebar()"></div>
+
 <div class="d-flex" style="min-height: 100vh;">
     <!-- Sidebar -->
-    <div class="sidebar bg-dark text-white" style="width: 250px; min-height: 100vh;">
+    <div id="sidebar" class="sidebar text-white" style="background-color: var(--sidebar-bg, #212529) !important;">
         <NavMenu />
     </div>
 
     <!-- Main Content -->
-    <div class="flex-grow-1 bg-light">
+    <div class="flex-grow-1 bg-light main-content">
         <!-- Top Bar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+        <nav class="navbar navbar-light bg-white shadow-sm px-3 px-lg-4 sticky-top">
             <div class="container-fluid">
+                <!-- Botón hamburguesa para móvil -->
+                <button class="btn btn-link text-dark d-lg-none p-2 me-2" onclick="window.toggleSidebar()" type="button">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                
                 <span class="navbar-brand mb-0 h1">
-                    <i class="bi bi-scissors me-2"></i>Sil Salón
+                    <i class="bi bi-scissors me-2 d-none d-sm-inline"></i>
+                    <span>Sil Salón</span>
                 </span>
-                <span class="text-muted small">
+                
+                <span class="text-muted small d-none d-md-inline">
                     <i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))
+                </span>
+                <span class="text-muted small d-md-none">
+                    <i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dd/MM/yy")
                 </span>
             </div>
         </nav>
 
         <!-- Page Content -->
-        <main class="p-4">
+        <main class="p-3 p-lg-4">
             @Body
         </main>
     </div>
@@ -32,3 +45,25 @@
     <a href="." class="alert-link">Recargar</a>
     <button type="button" class="btn-close dismiss" aria-label="Cerrar"></button>
 </div>
+
+<script>
+    window.toggleSidebar = function() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebar-overlay');
+        
+        if (sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+            overlay.classList.add('d-none');
+        } else {
+            sidebar.classList.add('show');
+            overlay.classList.remove('d-none');
+        }
+    };
+    
+    window.closeSidebar = function() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('show');
+        overlay.classList.add('d-none');
+    };
+</script>

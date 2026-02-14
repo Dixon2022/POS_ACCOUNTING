@@ -95,7 +95,7 @@
                                 <div class="col-12 col-sm-6">
                                     <div class="card h-100 border @(IsVariantInCart(variant.Id) ? "border-success bg-success bg-opacity-10" : "")">
                                         <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start">
+                                            <div class="d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <small class="text-muted">@variant.ProductName</small>
                                                     <h6 class="mb-1">@variant.Name</h6>
@@ -104,7 +104,7 @@
                                                         <span class="badge bg-secondary">Stock: @variant.Stock</span>
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-success btn-lg rounded-circle" 
+                                                <button class="btn btn-success btn-lg rounded-circle d-flex justify-content-center align-items-center" 
                                                         @onclick="() => AddVariant(variant)"
                                                         style="width: 50px; height: 50px;">
                                                     <i class="bi bi-plus"></i>
@@ -139,6 +139,29 @@
                                 <span class="badge bg-white text-success ms-2">@currentPurchase.Items.Count</span>
                             }
                         </h5>
+                    </div>
+                    <!-- Botones arriba -->
+                    <div class="card-body border-bottom bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Total:</h4>
+                            <h3 class="mb-0 text-success">@currentPurchase.Total.ToString("C2")</h3>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" 
+                                    @onclick="CompletePurchase"
+                                    disabled="@(!currentPurchase.Items.Any() || currentPurchase.SupplierId == 0 || isSaving)">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="bi bi-check-circle me-2"></i>Registrar Compra
+                            </button>
+                            <button class="btn btn-outline-danger btn-lg" 
+                                    @onclick="ClearCart"
+                                    disabled="@(!currentPurchase.Items.Any())">
+                                <i class="bi bi-x-circle me-2"></i>Vaciar Orden
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body" style="max-height: 400px; overflow-y: auto;">
                         @if (!currentPurchase.Items.Any())
@@ -190,28 +213,6 @@
                                 </div>
                             }
                         }
-                    </div>
-                    <div class="card-footer bg-light">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="mb-0">Total:</h4>
-                            <h3 class="mb-0 text-success">@currentPurchase.Total.ToString("C2")</h3>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" 
-                                    @onclick="CompletePurchase"
-                                    disabled="@(!currentPurchase.Items.Any() || currentPurchase.SupplierId == 0 || isSaving)">
-                                @if (isSaving)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                }
-                                <i class="bi bi-check-circle me-2"></i>Registrar Compra
-                            </button>
-                            <button class="btn btn-outline-danger btn-lg" 
-                                    @onclick="ClearCart"
-                                    disabled="@(!currentPurchase.Items.Any())">
-                                <i class="bi bi-x-circle me-2"></i>Vaciar Orden
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

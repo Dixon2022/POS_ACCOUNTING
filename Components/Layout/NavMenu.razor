@@ -1,24 +1,26 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@rendermode InteractiveServer
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="">
+        <a class="navbar-brand d-flex align-items-center" href="" onclick="if(window.closeSidebar) window.closeSidebar();">
             <i class="bi bi-scissors me-2"></i>
             <span>Sil Salón - Cuentas</span>
         </a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable">
     <nav class="nav flex-column p-2">
         <!-- Dashboard -->
         <div class="nav-item">
-            <NavLink class="nav-link text-white d-flex align-items-center" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link text-white d-flex align-items-center" href="" Match="NavLinkMatch.All" onclick="if(window.closeSidebar) window.closeSidebar();">
                 <i class="bi bi-speedometer2 nav-icon"></i>
                 <span>Dashboard</span>
-                <span class="help-tooltip" title="Vista general de tu negocio: ventas, gastos y estadísticas del día y mes">?</span>
             </NavLink>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
 
         <!-- Sección: Ventas -->
         <div class="nav-section">
@@ -32,22 +34,23 @@
             
             <div class="nav-section-content @(ventasExpanded ? "expanded" : "collapsed")">
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="ventas">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="ventas" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-cart-check nav-icon"></i>
                         <span>Nueva Venta</span>
-                        <span class="help-tooltip" title="Registra una venta de productos o servicios a un cliente">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-ventas">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-ventas" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-receipt nav-icon"></i>
                         <span>Historial Ventas</span>
-                        <span class="help-tooltip" title="Consulta todas las ventas realizadas anteriormente">?</span>
                     </NavLink>
                 </div>
             </div>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
 
         <!-- Sección: Catálogo -->
         <div class="nav-section">
@@ -61,38 +64,37 @@
             
             <div class="nav-section-content @(catalogoExpanded ? "expanded" : "collapsed")">
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="servicios">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="servicios" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-brush nav-icon"></i>
                         <span>Servicios</span>
-                        <span class="help-tooltip" title="Agrega o edita los servicios que ofreces (cortes, tintes, etc.)">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="productos">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="productos" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-box-seam nav-icon"></i>
                         <span>Productos</span>
-                        <span class="help-tooltip" title="Administra los productos que vendes (shampoos, tratamientos, etc.)">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="variantes">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="variantes" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-palette nav-icon"></i>
                         <span>Variantes</span>
-                        <span class="help-tooltip" title="Configura tamaños, colores o presentaciones de tus productos">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="inventario">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="inventario" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-box2 nav-icon"></i>
                         <span>Inventario</span>
-                        <span class="help-tooltip" title="Revisa cuánto producto tienes en existencia">?</span>
                     </NavLink>
                 </div>
             </div>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
 
         <!-- Sección: Compras -->
         <div class="nav-section">
@@ -106,22 +108,23 @@
             
             <div class="nav-section-content @(comprasExpanded ? "expanded" : "collapsed")">
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="compras">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="compras" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-bag-plus nav-icon"></i>
                         <span>Nueva Compra</span>
-                        <span class="help-tooltip" title="Registra compras de productos a tus proveedores">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-compras">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-compras" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-bag nav-icon"></i>
                         <span>Historial Compras</span>
-                        <span class="help-tooltip" title="Consulta todas las compras realizadas a proveedores">?</span>
                     </NavLink>
                 </div>
             </div>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
 
         <!-- Sección: Contactos -->
         <div class="nav-section">
@@ -135,22 +138,23 @@
             
             <div class="nav-section-content @(contactosExpanded ? "expanded" : "collapsed")">
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="clientes">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="clientes" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-people nav-icon"></i>
                         <span>Clientes</span>
-                        <span class="help-tooltip" title="Administra tu lista de clientes y su información de contacto">?</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="proveedores">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="proveedores" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-truck nav-icon"></i>
                         <span>Proveedores</span>
-                        <span class="help-tooltip" title="Administra tus proveedores de productos">?</span>
                     </NavLink>
                 </div>
             </div>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
 
         <!-- Sección: Finanzas -->
         <div class="nav-section">
@@ -164,30 +168,38 @@
             
             <div class="nav-section-content @(finanzasExpanded ? "expanded" : "collapsed")">
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="ingresos">
-                        <i class="bi bi-cash-stack nav-icon"></i>
-                        <span>Otros Ingresos</span>
-                        <span class="help-tooltip" title="Registra ingresos que no sean por ventas (préstamos, etc.)">?</span>
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="historial-general" onclick="if(window.closeSidebar) window.closeSidebar();">
+                        <i class="bi bi-journal-text nav-icon"></i>
+                        <span>Historial General</span>
                     </NavLink>
                 </div>
 
                 <div class="nav-item">
-                    <NavLink class="nav-link text-white d-flex align-items-center" href="gastos">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="ingresos" onclick="if(window.closeSidebar) window.closeSidebar();">
+                        <i class="bi bi-cash-stack nav-icon"></i>
+                        <span>Otros Ingresos</span>
+                    </NavLink>
+                </div>
+
+                <div class="nav-item">
+                    <NavLink class="nav-link text-white d-flex align-items-center" href="gastos" onclick="if(window.closeSidebar) window.closeSidebar();">
                         <i class="bi bi-wallet2 nav-icon"></i>
                         <span>Gastos</span>
-                        <span class="help-tooltip" title="Registra gastos del negocio (luz, agua, renta, etc.)">?</span>
                     </NavLink>
                 </div>
             </div>
         </div>
+
+        <!-- Separador -->
+        <hr class="my-2 border-secondary opacity-50" />
     </nav>
 </div>
 
 @code {
     private bool ventasExpanded = true;
-    private bool catalogoExpanded = true;
-    private bool comprasExpanded = true;
-    private bool contactosExpanded = true;
-    private bool finanzasExpanded = true;
+    private bool catalogoExpanded = false;
+    private bool comprasExpanded = false;
+    private bool contactosExpanded = false;
+    private bool finanzasExpanded = false;
 }
 
