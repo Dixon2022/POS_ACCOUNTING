@@ -1,0 +1,128 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">SilSalon_v.1</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column p-2">
+        <!-- Dashboard -->
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-speedometer2 me-3 fs-5"></i>
+                <span>Dashboard</span>
+            </NavLink>
+        </div>
+
+        <!-- Sección: Ventas -->
+        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Ventas</div>
+        
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="ventas">
+                <i class="bi bi-cart-check me-3 fs-5"></i>
+                <span>Nueva Venta</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="historial-ventas">
+                <i class="bi bi-receipt me-3 fs-5"></i>
+                <span>Historial Ventas</span>
+            </NavLink>
+        </div>
+
+        <!-- Sección: Catálogo -->
+        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Catálogo</div>
+        
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="servicios">
+                <i class="bi bi-brush me-3 fs-5"></i>
+                <span>Servicios</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="productos">
+                <i class="bi bi-box-seam me-3 fs-5"></i>
+                <span>Productos</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="variantes">
+                <i class="bi bi-palette me-3 fs-5"></i>
+                <span>Variantes</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="inventario">
+                <i class="bi bi-box2 me-3 fs-5"></i>
+                <span>Inventario</span>
+            </NavLink>
+        </div>
+
+        <!-- Sección: Compras -->
+        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Compras</div>
+        
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="compras">
+                <i class="bi bi-bag-plus me-3 fs-5"></i>
+                <span>Nueva Compra</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="historial-compras">
+                <i class="bi bi-bag me-3 fs-5"></i>
+                <span>Historial Compras</span>
+            </NavLink>
+        </div>
+
+        <!-- Sección: Contactos -->
+        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Contactos</div>
+        
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="clientes">
+                <i class="bi bi-people me-3 fs-5"></i>
+                <span>Clientes</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="proveedores">
+                <i class="bi bi-truck me-3 fs-5"></i>
+                <span>Proveedores</span>
+            </NavLink>
+        </div>
+
+        <!-- Sección: Finanzas -->
+        <div class="text-uppercase text-secondary small px-3 mt-3 mb-2">Finanzas</div>
+        
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="ingresos">
+                <i class="bi bi-cash-stack me-3 fs-5"></i>
+                <span>Otros Ingresos</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link text-white py-3 px-3 rounded mb-1" href="gastos">
+                <i class="bi bi-wallet2 me-3 fs-5"></i>
+                <span>Gastos</span>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+<style>
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .nav-link.active {
+        background-color: #0d6efd !important;
+    }
+</style>
+

@@ -1,0 +1,451 @@
+@page "/ventas"
+@inject ISaleService SaleService
+@inject ICustomerService CustomerService
+@inject IProductVariantService VariantService
+@inject IServiceService ServiceService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Nueva Venta - SilSalon</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-cart-check me-2"></i>Nueva Venta
+        </h2>
+        <a href="/historial-ventas" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-clock-history me-2"></i>Ver Historial
+        </a>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Panel izquierdo: Selección de productos/servicios -->
+            <div class="col-12 col-lg-7">
+                <!-- Cliente -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="mb-0"><i class="bi bi-person me-2"></i>Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <select class="form-select form-select-lg" @bind="currentSale.CustomerId">
+                            <option value="">Sin cliente (venta general)</option>
+                            @foreach (var customer in customers)
+                            {
+                                <option value="@customer.Id">@customer.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tabs para Servicios y Productos -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <button class="nav-link @(activeTab == "services" ? "active" : "")" 
+                                        @onclick='() => activeTab = "services"'>
+                                    <i class="bi bi-scissors me-2"></i>Servicios
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link @(activeTab == "products" ? "active" : "")" 
+                                        @onclick='() => activeTab = "products"'>
+                                    <i class="bi bi-box me-2"></i>Productos
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <!-- Búsqueda -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" class="form-control form-control-lg" 
+                                       placeholder="@(activeTab == "services" ? "Buscar servicio..." : "Buscar producto...")"
+                                       @bind="searchTerm" 
+                                       @bind:event="oninput" />
+                            </div>
+                        </div>
+
+                        @if (activeTab == "services")
+                        {
+                            <!-- Lista de Servicios -->
+                            <div class="row g-3" style="max-height: 400px; overflow-y: auto;">
+                                @foreach (var service in FilteredServices)
+                                {
+                                    <div class="col-12 col-sm-6">
+                                        <div class="card h-100 border @(IsServiceInCart(service.Id) ? "border-primary bg-primary bg-opacity-10" : "")">
+                                            <div class="card-body d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">@service.Name</h6>
+                                                    <span class="text-primary fw-bold">@service.BasePrice.ToString("C2")</span>
+                                                </div>
+                                                <button class="btn btn-primary btn-lg rounded-circle" 
+                                                        @onclick="() => AddService(service)"
+                                                        style="width: 50px; height: 50px;">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!FilteredServices.Any())
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-scissors fs-1 mb-2"></i>
+                                    <p>No hay servicios disponibles</p>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <!-- Lista de Productos -->
+                            <div class="row g-3" style="max-height: 400px; overflow-y: auto;">
+                                @foreach (var variant in FilteredVariants)
+                                {
+                                    <div class="col-12 col-sm-6">
+                                        <div class="card h-100 border @(variant.Stock == 0 ? "opacity-50" : "") @(IsProductInCart(variant.Id) ? "border-primary bg-primary bg-opacity-10" : "")">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <small class="text-muted">@variant.ProductName</small>
+                                                        <h6 class="mb-1">@variant.Name</h6>
+                                                        <span class="text-primary fw-bold">@variant.SalePrice.ToString("C2")</span>
+                                                    </div>
+                                                    <button class="btn btn-primary btn-lg rounded-circle" 
+                                                            @onclick="() => AddProduct(variant)"
+                                                            disabled="@(variant.Stock == 0)"
+                                                            style="width: 50px; height: 50px;">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge @(variant.Stock == 0 ? "bg-danger" : variant.Stock <= 5 ? "bg-warning text-dark" : "bg-success")">
+                                                        Stock: @variant.Stock
+                                                    </span>
+                                                    @if (!string.IsNullOrEmpty(variant.Code))
+                                                    {
+                                                        <code class="small">@variant.Code</code>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!FilteredVariants.Any())
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-box fs-1 mb-2"></i>
+                                    <p>No hay productos disponibles</p>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel derecho: Carrito -->
+            <div class="col-12 col-lg-5">
+                <div class="card border-0 shadow-sm sticky-top" style="top: 1rem;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-cart3 me-2"></i>
+                            Carrito
+                            @if (currentSale.Items.Any())
+                            {
+                                <span class="badge bg-white text-primary ms-2">@currentSale.Items.Count</span>
+                            }
+                        </h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        @if (!currentSale.Items.Any())
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-cart fs-1 mb-2"></i>
+                                <p>El carrito está vacío</p>
+                                <small>Agrega servicios o productos</small>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var item in currentSale.Items)
+                            {
+                                <div class="card mb-3 border">
+                                    <div class="card-body py-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <span class="badge @(item.ItemType == ItemType.Service ? "bg-info" : "bg-warning") me-2">
+                                                        @(item.ItemType == ItemType.Service ? "Servicio" : "Producto")
+                                                    </span>
+                                                    <strong>@item.ItemName</strong>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <div class="input-group input-group-sm" style="width: 100px;">
+                                                        <button class="btn btn-outline-secondary" type="button"
+                                                                @onclick="() => UpdateQuantity(item, -1)">
+                                                            <i class="bi bi-dash"></i>
+                                                        </button>
+                                                        <input type="text" class="form-control text-center" value="@item.Quantity" readonly />
+                                                        <button class="btn btn-outline-secondary" type="button"
+                                                                @onclick="() => UpdateQuantity(item, 1)">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                    <span class="text-muted">×</span>
+                                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" step="0.01" class="form-control" 
+                                                               @bind="item.UnitPrice" @bind:event="oninput"
+                                                               @onchange="RecalculateTotal" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <strong class="text-primary">@item.Total.ToString("C2")</strong>
+                                                <button class="btn btn-link text-danger p-0 ms-2" @onclick="() => RemoveItem(item)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Total:</h4>
+                            <h3 class="mb-0 text-primary">@currentSale.Total.ToString("C2")</h3>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" 
+                                    @onclick="CompleteSale"
+                                    disabled="@(!currentSale.Items.Any() || isSaving)">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="bi bi-check-circle me-2"></i>Completar Venta
+                            </button>
+                            <button class="btn btn-outline-danger btn-lg" 
+                                    @onclick="ClearCart"
+                                    disabled="@(!currentSale.Items.Any())">
+                                <i class="bi bi-x-circle me-2"></i>Vaciar Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de Éxito -->
+@if (showSuccessModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-5">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-4 mx-auto mb-4" style="width: fit-content;">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="mb-3">¡Venta Completada!</h3>
+                    <p class="text-muted mb-4">La venta se ha registrado correctamente.</p>
+                    <h4 class="text-primary mb-4">Total: @lastSaleTotal.ToString("C2")</h4>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" @onclick="NewSale">
+                            <i class="bi bi-plus-lg me-2"></i>Nueva Venta
+                        </button>
+                        <a href="/historial-ventas" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-list me-2"></i>Ver Historial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private SaleDto currentSale = new();
+    private List<CustomerDto> customers = new();
+    private List<ProductVariantDto> variants = new();
+    private List<ServiceDto> services = new();
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool showSuccessModal = false;
+    private decimal lastSaleTotal = 0;
+    private string activeTab = "services";
+    private string searchTerm = "";
+
+    private IEnumerable<ServiceDto> FilteredServices => services
+        .Where(s => string.IsNullOrEmpty(searchTerm) || 
+                    s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<ProductVariantDto> FilteredVariants => variants
+        .Where(v => string.IsNullOrEmpty(searchTerm) || 
+                    v.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    (v.ProductName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (v.Code?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        currentSale = new SaleDto { Date = DateTime.Now };
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        customers = (await CustomerService.GetActiveAsync()).ToList();
+        variants = (await VariantService.GetActiveAsync()).ToList();
+        services = (await ServiceService.GetActiveAsync()).ToList();
+        isLoading = false;
+    }
+
+    private bool IsServiceInCart(int serviceId) => 
+        currentSale.Items.Any(i => i.ItemType == ItemType.Service && i.ServiceId == serviceId);
+
+    private bool IsProductInCart(int variantId) => 
+        currentSale.Items.Any(i => i.ItemType == ItemType.Product && i.ProductVariantId == variantId);
+
+    private void AddService(ServiceDto service)
+    {
+        var existingItem = currentSale.Items.FirstOrDefault(i => 
+            i.ItemType == ItemType.Service && i.ServiceId == service.Id);
+
+        if (existingItem != null)
+        {
+            existingItem.Quantity++;
+            existingItem.Total = existingItem.Quantity * existingItem.UnitPrice;
+        }
+        else
+        {
+            currentSale.Items.Add(new SaleItemDto
+            {
+                ItemType = ItemType.Service,
+                ServiceId = service.Id,
+                ServiceName = service.Name,
+                Quantity = 1,
+                UnitPrice = service.BasePrice,
+                Total = service.BasePrice
+            });
+        }
+        RecalculateTotal();
+    }
+
+    private void AddProduct(ProductVariantDto variant)
+    {
+        var existingItem = currentSale.Items.FirstOrDefault(i => 
+            i.ItemType == ItemType.Product && i.ProductVariantId == variant.Id);
+
+        if (existingItem != null)
+        {
+            if (existingItem.Quantity < variant.Stock)
+            {
+                existingItem.Quantity++;
+                existingItem.Total = existingItem.Quantity * existingItem.UnitPrice;
+            }
+        }
+        else
+        {
+            currentSale.Items.Add(new SaleItemDto
+            {
+                ItemType = ItemType.Product,
+                ProductVariantId = variant.Id,
+                ProductVariantName = $"{variant.ProductName} - {variant.Name}",
+                Quantity = 1,
+                UnitPrice = variant.SalePrice,
+                Total = variant.SalePrice
+            });
+        }
+        RecalculateTotal();
+    }
+
+    private void UpdateQuantity(SaleItemDto item, int change)
+    {
+        item.Quantity += change;
+        if (item.Quantity < 1)
+        {
+            currentSale.Items.Remove(item);
+        }
+        else
+        {
+            // Verificar stock para productos
+            if (item.ItemType == ItemType.Product && item.ProductVariantId.HasValue)
+            {
+                var variant = variants.FirstOrDefault(v => v.Id == item.ProductVariantId);
+                if (variant != null && item.Quantity > variant.Stock)
+                {
+                    item.Quantity = variant.Stock;
+                }
+            }
+            item.Total = item.Quantity * item.UnitPrice;
+        }
+        RecalculateTotal();
+    }
+
+    private void RemoveItem(SaleItemDto item)
+    {
+        currentSale.Items.Remove(item);
+        RecalculateTotal();
+    }
+
+    private void RecalculateTotal()
+    {
+        foreach (var item in currentSale.Items)
+        {
+            item.Total = item.Quantity * item.UnitPrice;
+        }
+        currentSale.Total = currentSale.Items.Sum(i => i.Total);
+        StateHasChanged();
+    }
+
+    private void ClearCart()
+    {
+        currentSale = new SaleDto { Date = DateTime.Now };
+    }
+
+    private async Task CompleteSale()
+    {
+        if (!currentSale.Items.Any()) return;
+
+        isSaving = true;
+        try
+        {
+            RecalculateTotal();
+            await SaleService.CreateAsync(currentSale);
+            lastSaleTotal = currentSale.Total;
+            showSuccessModal = true;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task NewSale()
+    {
+        showSuccessModal = false;
+        await LoadData();
+        currentSale = new SaleDto { Date = DateTime.Now };
+    }
+}

@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+
+<div class="d-flex" style="min-height: 100vh;">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark text-white" style="width: 250px; min-height: 100vh;">
+        <NavMenu />
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 bg-light">
+        <!-- Top Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">
+                    <i class="bi bi-scissors me-2"></i>SilSalon
+                </span>
+                <span class="text-muted small">
+                    <i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dddd, dd MMMM yyyy", new System.Globalization.CultureInfo("es-ES"))
+                </span>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <main class="p-4">
+            @Body
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet class="alert alert-danger position-fixed bottom-0 start-50 translate-middle-x mb-3" style="display: none;">
+    Ha ocurrido un error inesperado.
+    <a href="." class="alert-link">Recargar</a>
+    <button type="button" class="btn-close dismiss" aria-label="Cerrar"></button>
+</div>

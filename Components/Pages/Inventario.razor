@@ -1,0 +1,300 @@
+@page "/inventario"
+@inject IProductVariantService VariantService
+@inject IProductService ProductService
+@rendermode InteractiveServer
+
+<PageTitle>Inventario - SilSalon</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-box2 me-2"></i>Inventario
+        </h2>
+    </div>
+
+    <!-- Resumen de Inventario -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">Total Productos</p>
+                            <h2 class="mb-0">@variants.Count</h2>
+                        </div>
+                        <i class="bi bi-box2 fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">Valor del Inventario</p>
+                            <h2 class="mb-0">@totalValue.ToString("C2")</h2>
+                        </div>
+                        <i class="bi bi-cash-coin fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">Productos con Stock Bajo</p>
+                            <h2 class="mb-0">@lowStockCount</h2>
+                        </div>
+                        <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-lg" 
+                               placeholder="Buscar producto..." 
+                               @bind="searchTerm" 
+                               @bind:event="oninput" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <select class="form-select form-select-lg" @bind="selectedProductId">
+                        <option value="0">Todos los productos</option>
+                        @foreach (var product in products)
+                        {
+                            <option value="@product.Id">@product.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <select class="form-select form-select-lg" @bind="stockFilter">
+                        <option value="all">Todos</option>
+                        <option value="low">Stock Bajo (?5)</option>
+                        <option value="out">Agotados</option>
+                        <option value="ok">Con Stock</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover bg-white shadow-sm rounded">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3">Producto</th>
+                        <th class="py-3">Variante</th>
+                        <th class="py-3">Código</th>
+                        <th class="py-3 text-center">Stock Actual</th>
+                        <th class="py-3 text-end">Valor Unitario</th>
+                        <th class="py-3 text-end">Valor Total</th>
+                        <th class="py-3 text-center">Estado</th>
+                        <th class="py-3 text-center">Ajustar Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var variant in FilteredVariants)
+                    {
+                        <tr class="@GetRowClass(variant)">
+                            <td class="py-3">@variant.ProductName</td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2">
+                                        <i class="bi bi-palette text-info"></i>
+                                    </div>
+                                    <strong>@variant.Name</strong>
+                                </div>
+                            </td>
+                            <td class="py-3">
+                                <code>@(string.IsNullOrEmpty(variant.Code) ? "-" : variant.Code)</code>
+                            </td>
+                            <td class="py-3 text-center">
+                                <span class="badge @GetStockBadgeClass(variant.Stock) fs-6">
+                                    @variant.Stock
+                                </span>
+                            </td>
+                            <td class="py-3 text-end">@variant.CostPrice.ToString("C2")</td>
+                            <td class="py-3 text-end fw-bold">@((variant.Stock * variant.CostPrice).ToString("C2"))</td>
+                            <td class="py-3 text-center">
+                                @if (variant.Stock == 0)
+                                {
+                                    <span class="badge bg-danger">Agotado</span>
+                                }
+                                else if (variant.Stock <= 5)
+                                {
+                                    <span class="badge bg-warning text-dark">Stock Bajo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Normal</span>
+                                }
+                            </td>
+                            <td class="py-3 text-center">
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-danger btn-sm" 
+                                            @onclick="() => AdjustStock(variant, -1)"
+                                            disabled="@(variant.Stock <= 0)">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" 
+                                            @onclick="() => AdjustStock(variant, 1)">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            @onclick="() => ShowAdjustModal(variant)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!FilteredVariants.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-box2 text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-muted mt-3">No hay productos en el inventario</h4>
+                <p class="text-muted">Agrega productos y variantes para ver el inventario</p>
+            </div>
+        }
+    }
+</div>
+
+<!-- Modal Ajustar Stock -->
+@if (showAdjustModal)
+{
+    <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box2 me-2"></i>Ajustar Stock
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="() => showAdjustModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">
+                        <strong>@variantToAdjust?.ProductName - @variantToAdjust?.Name</strong>
+                    </p>
+                    <p class="text-muted mb-3">Stock actual: <strong>@variantToAdjust?.Stock</strong></p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nuevo Stock</label>
+                        <input type="number" class="form-control form-control-lg" @bind="newStock" min="0" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showAdjustModal = false">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-lg" @onclick="SaveStockAdjustment">
+                        <i class="bi bi-check-lg me-2"></i>Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ProductVariantDto> variants = new();
+    private List<ProductDto> products = new();
+    private ProductVariantDto? variantToAdjust;
+    private bool isLoading = true;
+    private bool showAdjustModal = false;
+    private string searchTerm = "";
+    private int selectedProductId = 0;
+    private string stockFilter = "all";
+    private int newStock = 0;
+
+    private decimal totalValue => variants.Where(v => v.IsActive).Sum(v => v.Stock * v.CostPrice);
+    private int lowStockCount => variants.Count(v => v.IsActive && v.Stock <= 5);
+
+    private IEnumerable<ProductVariantDto> FilteredVariants => variants
+        .Where(v => v.IsActive)
+        .Where(v => selectedProductId == 0 || v.ProductId == selectedProductId)
+        .Where(v => stockFilter == "all" || 
+                    (stockFilter == "low" && v.Stock <= 5 && v.Stock > 0) ||
+                    (stockFilter == "out" && v.Stock == 0) ||
+                    (stockFilter == "ok" && v.Stock > 5))
+        .Where(v => string.IsNullOrEmpty(searchTerm) || 
+                    v.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    (v.Code?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (v.ProductName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        variants = (await VariantService.GetAllAsync()).ToList();
+        products = (await ProductService.GetActiveAsync()).ToList();
+        isLoading = false;
+    }
+
+    private string GetRowClass(ProductVariantDto variant)
+    {
+        if (variant.Stock == 0) return "table-danger";
+        if (variant.Stock <= 5) return "table-warning";
+        return "";
+    }
+
+    private string GetStockBadgeClass(int stock)
+    {
+        if (stock == 0) return "bg-danger";
+        if (stock <= 5) return "bg-warning text-dark";
+        return "bg-success";
+    }
+
+    private async Task AdjustStock(ProductVariantDto variant, int adjustment)
+    {
+        await VariantService.UpdateStockAsync(variant.Id, adjustment);
+        await LoadData();
+    }
+
+    private void ShowAdjustModal(ProductVariantDto variant)
+    {
+        variantToAdjust = variant;
+        newStock = variant.Stock;
+        showAdjustModal = true;
+    }
+
+    private async Task SaveStockAdjustment()
+    {
+        if (variantToAdjust != null)
+        {
+            var adjustment = newStock - variantToAdjust.Stock;
+            await VariantService.UpdateStockAsync(variantToAdjust.Id, adjustment);
+            await LoadData();
+        }
+        showAdjustModal = false;
+        variantToAdjust = null;
+    }
+}
