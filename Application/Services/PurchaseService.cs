@@ -74,6 +74,12 @@ public class PurchaseService : IPurchaseService
             var pendingBalance = total - dto.DepositAmount;
             if (pendingBalance < 0) pendingBalance = 0;
 
+            // NUEVA LÓGICA: Si no hay abono (pagó completo), se recibe automáticamente
+            // Si hay abono, se respeta el valor que viene del formulario
+            bool productReceived = dto.DepositAmount == 0 
+                ? true  // Sin abono = pago completo = recepción inmediata
+                : dto.ProductReceived;  // Con abono = el usuario decide
+
             var purchase = new Purchase
             {
                 Date = dto.Date,
@@ -81,7 +87,7 @@ public class PurchaseService : IPurchaseService
                 Total = total,
                 DepositAmount = dto.DepositAmount,
                 PendingBalance = pendingBalance,
-                ProductReceived = dto.ProductReceived,
+                ProductReceived = productReceived,
                 PaymentMethod = dto.PaymentMethod,
                 Notes = dto.Notes
             };
@@ -103,7 +109,7 @@ public class PurchaseService : IPurchaseService
                 _context.PurchaseItems.Add(purchaseItem);
 
                 // Incrementar stock solo si el producto fue recibido
-                if (dto.ProductReceived)
+                if (productReceived)
                 {
                     var variant = await _context.ProductVariants.FindAsync(itemDto.ProductVariantId);
                     if (variant != null)
@@ -123,6 +129,7 @@ public class PurchaseService : IPurchaseService
 
             dto.Id = purchase.Id;
             dto.PendingBalance = pendingBalance;
+            dto.ProductReceived = productReceived;
             return dto;
         }
         catch

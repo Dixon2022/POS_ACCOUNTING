@@ -14,6 +14,9 @@ public class FinancialMovementDto
     public string? Category { get; set; }
     public string? Notes { get; set; }
     public string? RelatedEntity { get; set; } // Cliente, Proveedor, etc.
+    public int? Quantity { get; set; } // Cantidad de productos (solo para Ventas y Compras)
+    public decimal? UnitPrice { get; set; } // Precio unitario promedio (solo para Ventas y Compras)
+    public string? ProductNames { get; set; } // Nombres de productos/servicios vendidos o comprados
 }
 
 public enum FinancialMovementType

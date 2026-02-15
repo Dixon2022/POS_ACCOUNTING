@@ -83,7 +83,14 @@
                                            @bind:event="oninput"
                                            @onchange="CalculatePendingBalance" />
                                 </div>
-                                @if (currentPurchase.DepositAmount > 0 && currentPurchase.DepositAmount < currentPurchase.Total)
+                                @if (currentPurchase.DepositAmount == 0)
+                                {
+                                    <small class="text-success">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Pago completo - Se recibe automáticamente
+                                    </small>
+                                }
+                                else if (currentPurchase.DepositAmount > 0 && currentPurchase.DepositAmount < currentPurchase.Total)
                                 {
                                     <small class="text-warning">
                                         <i class="bi bi-exclamation-triangle me-1"></i>
@@ -91,30 +98,33 @@
                                     </small>
                                 }
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">
-                                    <i class="bi bi-box-arrow-in-down me-1"></i>Estado del producto
-                                </label>
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" role="switch" 
-                                           id="productReceivedSwitch"
-                                           @bind="currentPurchase.ProductReceived">
-                                    <label class="form-check-label" for="productReceivedSwitch">
-                                        @if (currentPurchase.ProductReceived)
-                                        {
-                                            <span class="text-success">
-                                                <i class="bi bi-check-circle me-1"></i>Productos recibidos en el salón
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-info">
-                                                <i class="bi bi-clock-history me-1"></i>Pendiente de entrega (no afecta inventario)
-                                            </span>
-                                        }
+                            @if (currentPurchase.DepositAmount > 0)
+                            {
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-box-arrow-in-down me-1"></i>Estado del producto
                                     </label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" 
+                                               id="productReceivedSwitch"
+                                               @bind="currentPurchase.ProductReceived">
+                                        <label class="form-check-label" for="productReceivedSwitch">
+                                            @if (currentPurchase.ProductReceived)
+                                            {
+                                                <span class="text-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Productos recibidos en el salón
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-info">
+                                                    <i class="bi bi-clock-history me-1"></i>Pendiente de entrega (no afecta inventario)
+                                                </span>
+                                            }
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -230,12 +240,15 @@
                                             <div class="flex-grow-1">
                                                 <strong class="d-block mb-2">@item.ProductVariantName</strong>
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <div class="input-group input-group-sm" style="width: 100px;">
+                                                    <div class="input-group input-group-sm" style="width: 120px;">
                                                         <button class="btn btn-outline-secondary" type="button"
                                                                 @onclick="() => UpdateQuantity(item, -1)">
                                                             <i class="bi bi-dash"></i>
                                                         </button>
-                                                        <input type="text" class="form-control text-center" value="@item.Quantity" readonly />
+                                                        <input type="number" min="1" 
+                                                               class="form-control text-center" 
+                                                               value="@item.Quantity"
+                                                               @onchange="(e) => SetQuantity(item, e)" />
                                                         <button class="btn btn-outline-secondary" type="button"
                                                                 @onclick="() => UpdateQuantity(item, 1)">
                                                             <i class="bi bi-plus"></i>
@@ -243,7 +256,7 @@
                                                     </div>
                                                     <span class="text-muted">×</span>
                                                     <div class="input-group input-group-sm" style="width: 120px;">
-                                                        <span class="input-group-text">$</span>
+                                                        <span class="input-group-text">₡</span>
                                                         <input type="number" step="0.01" class="form-control" 
                                                                @bind="item.UnitCost" @bind:event="oninput"
                                                                @onchange="RecalculateTotal" />
@@ -399,6 +412,22 @@
         RecalculateTotal();
     }
 
+    private void SetQuantity(PurchaseItemDto item, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newQuantity))
+        {
+            // Evitar negativos y cero
+            if (newQuantity < 1)
+            {
+                newQuantity = 1;
+            }
+            
+            item.Quantity = newQuantity;
+            item.Total = item.Quantity * item.UnitCost;
+            RecalculateTotal();
+        }
+    }
+
     private void RemoveItem(PurchaseItemDto item)
     {
         currentPurchase.Items.Remove(item);
@@ -429,6 +458,15 @@
         try
         {
             RecalculateTotal();
+            
+            // Si no hay abono (pago completo), se recibe automáticamente y se marca como pagado
+            if (currentPurchase.DepositAmount == 0)
+            {
+                currentPurchase.DepositAmount = currentPurchase.Total; // Pagó todo
+                currentPurchase.PendingBalance = 0;
+                currentPurchase.ProductReceived = true;
+            }
+            
             await PurchaseService.CreateAsync(currentPurchase);
             lastPurchaseTotal = currentPurchase.Total;
             lastDepositAmount = currentPurchase.DepositAmount;

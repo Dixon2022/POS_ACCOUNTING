@@ -3,7 +3,9 @@
 @inject IPurchaseService PurchaseService
 @inject IExpenseService ExpenseService
 @inject IIncomeService IncomeService
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
+@using ClosedXML.Excel
 
 <PageTitle>Historial General - SilSalon</PageTitle>
 
@@ -13,6 +15,9 @@
             <i class="bi bi-journal-text me-2"></i>Historial General
         </h2>
         <div class="d-flex gap-2">
+            <button class="btn btn-outline-success" @onclick="ExportToExcel" disabled="@(isLoading || !filteredMovements.Any())">
+                <i class="bi bi-file-earmark-excel me-1"></i>Exportar a Excel
+            </button>
             <button class="btn @(showIngresos && showEgresos ? "btn-primary" : "btn-outline-primary")" 
                     @onclick="ShowAll">
                 <i class="bi bi-list-ul me-1"></i>Todos
@@ -228,6 +233,11 @@
         var sales = await SaleService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
         foreach (var sale in sales)
         {
+            var totalQuantity = sale.Items.Sum(i => i.Quantity);
+            var productNames = string.Join(", ", sale.Items
+                .Select(i => i.ProductVariantName ?? i.ServiceName)
+                .Where(n => !string.IsNullOrEmpty(n)));
+            
             movements.Add(new FinancialMovementDto
             {
                 Id = sale.Id,
@@ -237,7 +247,10 @@
                 Amount = sale.Total,
                 IsIncome = true,
                 RelatedEntity = sale.CustomerName ?? "Venta General",
-                Notes = sale.Notes
+                Notes = sale.Notes,
+                Quantity = totalQuantity,
+                UnitPrice = totalQuantity > 0 ? sale.Total / totalQuantity : null,
+                ProductNames = string.IsNullOrEmpty(productNames) ? null : productNames
             });
         }
 
@@ -245,6 +258,11 @@
         var purchases = await PurchaseService.GetByDateRangeAsync(startDate, endDate.AddDays(1));
         foreach (var purchase in purchases)
         {
+            var totalQuantity = purchase.Items.Sum(i => i.Quantity);
+            var productNames = string.Join(", ", purchase.Items
+                .Select(i => i.ProductVariantName)
+                .Where(n => !string.IsNullOrEmpty(n)));
+            
             movements.Add(new FinancialMovementDto
             {
                 Id = purchase.Id,
@@ -254,7 +272,10 @@
                 Amount = purchase.Total,
                 IsIncome = false,
                 RelatedEntity = purchase.SupplierName,
-                Notes = purchase.Notes
+                Notes = purchase.Notes,
+                Quantity = totalQuantity,
+                UnitPrice = totalQuantity > 0 ? purchase.Total / totalQuantity : null,
+                ProductNames = string.IsNullOrEmpty(productNames) ? null : productNames
             });
         }
 
@@ -271,7 +292,10 @@
                 Amount = expense.Amount,
                 IsIncome = false,
                 Category = expense.Category,
-                Notes = expense.Notes
+                Notes = expense.Notes,
+                Quantity = null,
+                UnitPrice = null,
+                ProductNames = null
             });
         }
 
@@ -286,7 +310,10 @@
                 Type = FinancialMovementType.Income,
                 Description = income.Description,
                 Amount = income.Amount,
-                IsIncome = true
+                IsIncome = true,
+                Quantity = null,
+                UnitPrice = null,
+                ProductNames = null
             });
         }
 
@@ -396,4 +423,108 @@
         FinancialMovementType.Purchase => "bi-truck",
         _ => "bi-tag"
     };
+
+    private async Task ExportToExcel()
+    {
+        using var workbook = new XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Historial General");
+
+        // Encabezados
+        worksheet.Cell(1, 1).Value = "Fecha";
+        worksheet.Cell(1, 2).Value = "Hora";
+        worksheet.Cell(1, 3).Value = "Tipo";
+        worksheet.Cell(1, 4).Value = "Descripción";
+        worksheet.Cell(1, 5).Value = "Productos/Servicios";
+        worksheet.Cell(1, 6).Value = "Categoría";
+        worksheet.Cell(1, 7).Value = "Relacionado";
+        worksheet.Cell(1, 8).Value = "Notas";
+        worksheet.Cell(1, 9).Value = "Cantidad";
+        worksheet.Cell(1, 10).Value = "Precio Unitario";
+        worksheet.Cell(1, 11).Value = "Monto Total";
+        worksheet.Cell(1, 12).Value = "Tipo Movimiento";
+
+        // Estilo de encabezados
+        var headerRange = worksheet.Range(1, 1, 1, 12);
+        headerRange.Style.Font.Bold = true;
+        headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+        headerRange.Style.Font.FontColor = XLColor.White;
+        headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        // Datos
+        int row = 2;
+        foreach (var movement in filteredMovements)
+        {
+            worksheet.Cell(row, 1).Value = movement.Date.ToString("dd/MM/yyyy");
+            worksheet.Cell(row, 2).Value = movement.Date.ToString("HH:mm");
+            worksheet.Cell(row, 3).Value = GetTypeName(movement.Type);
+            worksheet.Cell(row, 4).Value = movement.Description;
+            worksheet.Cell(row, 5).Value = movement.ProductNames ?? "N/A";
+            worksheet.Cell(row, 6).Value = movement.Category ?? "";
+            worksheet.Cell(row, 7).Value = movement.RelatedEntity ?? "";
+            worksheet.Cell(row, 8).Value = movement.Notes ?? "";
+            worksheet.Cell(row, 9).Value = movement.Quantity.HasValue ? movement.Quantity.Value.ToString() : "N/A";
+            
+            // Precio Unitario
+            if (movement.UnitPrice.HasValue)
+            {
+                worksheet.Cell(row, 10).Value = movement.UnitPrice.Value;
+            }
+            else
+            {
+                worksheet.Cell(row, 10).Value = "N/A";
+            }
+            
+            worksheet.Cell(row, 11).Value = movement.Amount;
+            worksheet.Cell(row, 12).Value = movement.IsIncome ? "Ingreso" : "Egreso";
+
+            // Color de fila según tipo
+            if (movement.IsIncome)
+            {
+                worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.Green;
+            }
+            else
+            {
+                worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.Red;
+            }
+
+            row++;
+        }
+
+        // Agregar resumen al final
+        row += 2;
+        worksheet.Cell(row, 10).Value = "Total Ingresos:";
+        worksheet.Cell(row, 10).Style.Font.Bold = true;
+        worksheet.Cell(row, 11).Value = totalIngresos;
+        worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.Green;
+        worksheet.Cell(row, 11).Style.Font.Bold = true;
+
+        row++;
+        worksheet.Cell(row, 10).Value = "Total Egresos:";
+        worksheet.Cell(row, 10).Style.Font.Bold = true;
+        worksheet.Cell(row, 11).Value = totalEgresos;
+        worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.Red;
+        worksheet.Cell(row, 11).Style.Font.Bold = true;
+
+        row++;
+        worksheet.Cell(row, 10).Value = "Balance:";
+        worksheet.Cell(row, 10).Style.Font.Bold = true;
+        worksheet.Cell(row, 11).Value = balance;
+        worksheet.Cell(row, 11).Style.Font.FontColor = balance >= 0 ? XLColor.Green : XLColor.Red;
+        worksheet.Cell(row, 11).Style.Font.Bold = true;
+
+        // Formato de moneda para las columnas de precio
+        worksheet.Column(10).Style.NumberFormat.Format = "$ #,##0.00";
+        worksheet.Column(11).Style.NumberFormat.Format = "$ #,##0.00";
+
+        // Ajustar ancho de columnas
+        worksheet.Columns().AdjustToContents();
+
+        // Guardar a memoria y descargar
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        var content = stream.ToArray();
+        var fileName = $"HistorialGeneral_{startDate:yyyyMMdd}_{endDate:yyyyMMdd}.xlsx";
+
+        await JSRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, Convert.ToBase64String(content));
+    }
 }

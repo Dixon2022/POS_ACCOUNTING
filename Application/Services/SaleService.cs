@@ -90,6 +90,12 @@ public class SaleService : ISaleService
             var pendingBalance = total - dto.DepositAmount;
             if (pendingBalance < 0) pendingBalance = 0;
 
+            // NUEVA LÓGICA: Si no hay abono (pagó completo), se entrega automáticamente
+            // Si hay abono, se respeta el valor que viene del formulario
+            bool productDelivered = dto.DepositAmount == 0 
+                ? true  // Sin abono = pago completo = entrega inmediata
+                : dto.ProductDelivered;  // Con abono = el usuario decide
+
             var sale = new Sale
             {
                 Date = dto.Date,
@@ -97,7 +103,7 @@ public class SaleService : ISaleService
                 Total = total,
                 DepositAmount = dto.DepositAmount,
                 PendingBalance = pendingBalance,
-                ProductDelivered = dto.ProductDelivered,
+                ProductDelivered = productDelivered,
                 PaymentMethod = dto.PaymentMethod,
                 Notes = dto.Notes
             };
@@ -121,7 +127,7 @@ public class SaleService : ISaleService
                 _context.SaleItems.Add(saleItem);
 
                 // Disminuir stock si es producto Y si el producto fue entregado
-                if (dto.ProductDelivered && itemDto.ItemType == ItemType.Product && itemDto.ProductVariantId.HasValue)
+                if (productDelivered && itemDto.ItemType == ItemType.Product && itemDto.ProductVariantId.HasValue)
                 {
                     var variant = await _context.ProductVariants.FindAsync(itemDto.ProductVariantId.Value);
                     if (variant != null)
@@ -137,6 +143,7 @@ public class SaleService : ISaleService
 
             dto.Id = sale.Id;
             dto.PendingBalance = pendingBalance;
+            dto.ProductDelivered = productDelivered;
             return dto;
         }
         catch
