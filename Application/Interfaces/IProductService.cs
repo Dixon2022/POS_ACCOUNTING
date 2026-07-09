@@ -1,6 +1,6 @@
-using SilSalon_v._1.Application.DTOs;
+using ERP_Software.Application.DTOs;
 
-namespace SilSalon_v._1.Application.Interfaces;
+namespace ERP_Software.Application.Interfaces;
 
 public interface IProductService
 {

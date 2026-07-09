@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace SilSalon_v._1.Infrastructure.Repositories;
+namespace ERP_Software.Infrastructure.Repositories;
 
 public interface IRepository<T> where T : class
 {

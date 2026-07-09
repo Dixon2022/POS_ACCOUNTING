@@ -11,11 +11,11 @@
     <link rel="stylesheet" href="@Assets["ERP_Software.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="_framework/blazor.web.js"></script>
     <script>

@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using SilSalon_v._1.Infrastructure.Data;
+using ERP_Software.Infrastructure.Data;
 
-namespace SilSalon_v._1.Infrastructure.Repositories;
+namespace ERP_Software.Infrastructure.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {

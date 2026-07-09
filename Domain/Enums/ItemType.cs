@@ -1,4 +1,4 @@
-namespace SilSalon_v._1.Domain.Enums;
+namespace ERP_Software.Domain.Enums;
 
 public enum ItemType
 {

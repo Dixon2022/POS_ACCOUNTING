@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SilSalon_v._1.Infrastructure.Data;
+using ERP_Software.Infrastructure.Data;
 
 #nullable disable
 
-namespace SilSalon_v._1.Migrations
+namespace ERP_Software.Migrations
 {
     [DbContext(typeof(SalonDbContext))]
     partial class SalonDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace SilSalon_v._1.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.13");
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Customer", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,7 +45,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Expense", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,7 +80,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Income", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Income", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +104,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Incomes");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Product", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -130,7 +130,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.ProductVariant", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.ProductVariant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,7 +169,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("ProductVariants");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Purchase", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Purchase", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,7 +209,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Purchases");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.PurchaseItem", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.PurchaseItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,7 +239,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("PurchaseItems");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Sale", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Sale", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -279,7 +279,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Sales");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.SaleItem", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.SaleItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -317,7 +317,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("SaleItems");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Service", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Service", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -341,7 +341,7 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Supplier", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Supplier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -377,9 +377,9 @@ namespace SilSalon_v._1.Migrations
                     b.ToTable("Suppliers");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Product", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Product", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Supplier", "Supplier")
+                    b.HasOne("ERP_Software.Domain.Entities.Supplier", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -388,9 +388,9 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.ProductVariant", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.ProductVariant", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Product", "Product")
+                    b.HasOne("ERP_Software.Domain.Entities.Product", "Product")
                         .WithMany("Variants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -399,9 +399,9 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Purchase", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Purchase", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Supplier", "Supplier")
+                    b.HasOne("ERP_Software.Domain.Entities.Supplier", "Supplier")
                         .WithMany("Purchases")
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -410,15 +410,15 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.PurchaseItem", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.PurchaseItem", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.ProductVariant", "ProductVariant")
+                    b.HasOne("ERP_Software.Domain.Entities.ProductVariant", "ProductVariant")
                         .WithMany("PurchaseItems")
                         .HasForeignKey("ProductVariantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Purchase", "Purchase")
+                    b.HasOne("ERP_Software.Domain.Entities.Purchase", "Purchase")
                         .WithMany("Items")
                         .HasForeignKey("PurchaseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -429,9 +429,9 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Purchase");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Sale", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Sale", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Customer", "Customer")
+                    b.HasOne("ERP_Software.Domain.Entities.Customer", "Customer")
                         .WithMany("Sales")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -439,20 +439,20 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.SaleItem", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.SaleItem", b =>
                 {
-                    b.HasOne("SilSalon_v._1.Domain.Entities.ProductVariant", "ProductVariant")
+                    b.HasOne("ERP_Software.Domain.Entities.ProductVariant", "ProductVariant")
                         .WithMany("SaleItems")
                         .HasForeignKey("ProductVariantId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Sale", "Sale")
+                    b.HasOne("ERP_Software.Domain.Entities.Sale", "Sale")
                         .WithMany("Items")
                         .HasForeignKey("SaleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SilSalon_v._1.Domain.Entities.Service", "Service")
+                    b.HasOne("ERP_Software.Domain.Entities.Service", "Service")
                         .WithMany("SaleItems")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -464,39 +464,39 @@ namespace SilSalon_v._1.Migrations
                     b.Navigation("Service");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Customer", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("Sales");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Product", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Product", b =>
                 {
                     b.Navigation("Variants");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.ProductVariant", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.ProductVariant", b =>
                 {
                     b.Navigation("PurchaseItems");
 
                     b.Navigation("SaleItems");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Purchase", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Purchase", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Sale", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Sale", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Service", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Service", b =>
                 {
                     b.Navigation("SaleItems");
                 });
 
-            modelBuilder.Entity("SilSalon_v._1.Domain.Entities.Supplier", b =>
+            modelBuilder.Entity("ERP_Software.Domain.Entities.Supplier", b =>
                 {
                     b.Navigation("Products");
 

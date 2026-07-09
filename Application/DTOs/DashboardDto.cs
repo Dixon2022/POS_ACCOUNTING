@@ -1,4 +1,4 @@
-namespace SilSalon_v._1.Application.DTOs;
+namespace ERP_Software.Application.DTOs;
 
 public class DashboardDto
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using SilSalon_v._1.Application.Interfaces;
-using SilSalon_v._1.Application.Services;
-using SilSalon_v._1.Components;
-using SilSalon_v._1.Infrastructure.Data;
+using ERP_Software.Application.Interfaces;
+using ERP_Software.Application.Services;
+using ERP_Software.Components;
+using ERP_Software.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

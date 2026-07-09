@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using SilSalon_v._1.Domain.Enums;
+using ERP_Software.Domain.Enums;
 
-namespace SilSalon_v._1.Application.DTOs;
+namespace ERP_Software.Application.DTOs;
 
 public class ExpenseDto
 {

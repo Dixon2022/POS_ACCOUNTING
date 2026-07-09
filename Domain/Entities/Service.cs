@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SilSalon_v._1.Domain.Entities;
+namespace ERP_Software.Domain.Entities;
 
 public class Service
 {

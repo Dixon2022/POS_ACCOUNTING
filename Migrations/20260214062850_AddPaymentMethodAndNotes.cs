@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SilSalon_v._1.Migrations
+namespace ERP_Software.Migrations
 {
     /// <inheritdoc />
     public partial class AddPaymentMethodAndNotes : Migration

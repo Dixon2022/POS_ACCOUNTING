@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using SilSalon_v._1.Domain.Entities;
+using ERP_Software.Domain.Entities;
 
-namespace SilSalon_v._1.Infrastructure.Data;
+namespace ERP_Software.Infrastructure.Data;
 
 public class SalonDbContext : DbContext
 {

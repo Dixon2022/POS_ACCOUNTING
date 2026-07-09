@@ -1,4 +1,4 @@
-namespace SilSalon_v._1.Application.DTOs;
+namespace ERP_Software.Application.DTOs;
 
 /// <summary>
 /// Representa un movimiento financiero unificado (Venta, Compra, Gasto o Ingreso)

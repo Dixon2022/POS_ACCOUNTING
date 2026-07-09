@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using SilSalon_v._1.Application.DTOs;
-using SilSalon_v._1.Application.Interfaces;
-using SilSalon_v._1.Domain.Entities;
-using SilSalon_v._1.Infrastructure.Data;
+using ERP_Software.Application.DTOs;
+using ERP_Software.Application.Interfaces;
+using ERP_Software.Domain.Entities;
+using ERP_Software.Infrastructure.Data;
 
-namespace SilSalon_v._1.Application.Services;
+namespace ERP_Software.Application.Services;
 
 public class ProductVariantService : IProductVariantService
 {
