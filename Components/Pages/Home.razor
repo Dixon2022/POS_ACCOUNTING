@@ -1,9 +1,9 @@
-ï»¿@page "/"
+@page "/"
 @inject IDashboardService DashboardService
 @inject IJSRuntime JS
 @rendermode InteractiveServer
 
-<PageTitle>Dashboard - Sil SalÃ³n</PageTitle>
+<PageTitle>Dashboard - Company</PageTitle>
 
 <div class="container-fluid">
     <h2 class="mb-4">
@@ -20,7 +20,7 @@
     }
     else if (dashboard != null)
     {
-        <!-- Tarjetas de mÃ©tricas principales -->
+        <!-- Tarjetas de métricas principales -->
         <div class="row g-4 mb-4">
             <!-- Ingresos Hoy -->
             <div class="col-12 col-sm-6 col-xl-3">
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <!-- Segunda fila de mÃ©tricas -->
+        <!-- Segunda fila de métricas -->
         <div class="row g-4 mb-4">
             <!-- Compras del Mes -->
             <div class="col-12 col-sm-6 col-lg-4">
@@ -147,13 +147,13 @@
             </div>
         </div>
 
-        <!-- GrÃ¡ficos y EstadÃ­sticas -->
+        <!-- Gráficos y Estadísticas -->
         <div class="row g-4 mb-4">
-            <!-- GrÃ¡fico de ventas -->
+            <!-- Gráfico de ventas -->
             <div class="col-12 col-lg-8">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-white border-0">
-                        <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Ventas Ãšltimos 7 DÃ­as</h5>
+                        <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Ventas Últimos 7 Días</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="salesChart" style="max-height: 300px;"></canvas>
@@ -170,13 +170,13 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <p class="text-muted mb-1 small">
-                                <i class="bi bi-box me-1"></i>Producto MÃ¡s Vendido
+                                <i class="bi bi-box me-1"></i>Producto Más Vendido
                             </p>
                             <h6 class="mb-0">@(dashboard.BestSellingProduct ?? "Sin datos")</h6>
                         </div>
                         <div class="mb-4">
                             <p class="text-muted mb-1 small">
-                                <i class="bi bi-scissors me-1"></i>Servicio MÃ¡s Solicitado
+                                <i class="bi bi-scissors me-1"></i>Servicio Más Solicitado
                             </p>
                             <h6 class="mb-0">@(dashboard.MostRequestedService ?? "Sin datos")</h6>
                         </div>
@@ -197,12 +197,12 @@
             </div>
         </div>
 
-        <!-- GrÃ¡fico de distribuciÃ³n -->
+        <!-- Gráfico de distribución -->
         <div class="row g-4">
             <div class="col-12 col-md-6">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-0">
-                        <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>DistribuciÃ³n Financiera</h5>
+                        <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Distribución Financiera</h5>
                     </div>
                     <div class="card-body d-flex justify-content-center">
                         <canvas id="distributionChart" style="max-height: 250px; max-width: 250px;"></canvas>
@@ -212,7 +212,7 @@
             <div class="col-12 col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-white border-0">
-                        <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones RÃ¡pidas</h5>
+                        <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">

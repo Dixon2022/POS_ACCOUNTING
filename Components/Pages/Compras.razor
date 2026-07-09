@@ -1,11 +1,11 @@
-ï»¿@page "/compras"
+@page "/compras"
 @inject IPurchaseService PurchaseService
 @inject ISupplierService SupplierService
 @inject IProductVariantService VariantService
 @inject IProductService ProductService
 @rendermode InteractiveServer
 
-<PageTitle>Nueva Compra - SilSalon</PageTitle>
+<PageTitle>Nueva Compra - Company</PageTitle>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -28,7 +28,7 @@
     else
     {
         <div class="row g-4">
-            <!-- Panel izquierdo: SelecciÃ³n de productos -->
+            <!-- Panel izquierdo: Selección de productos -->
             <div class="col-12 col-lg-7">
                 <!-- Proveedor -->
                 <div class="card border-0 shadow-sm mb-4">
@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                <!-- MÃ©todo de Pago y Notas -->
+                <!-- Método de Pago y Notas -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white border-0">
                         <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Detalles del Pago</h5>
@@ -54,7 +54,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label">MÃ©todo de Pago</label>
+                                <label class="form-label">Método de Pago</label>
                                 <select class="form-select form-select-lg" @bind="currentPurchase.PaymentMethod">
                                     <option value="@PaymentMethod.Efectivo">Efectivo</option>
                                     <option value="@PaymentMethod.SINPE">SINPE</option>
@@ -69,14 +69,14 @@
                             </div>
                         </div>
                         
-                        <!-- Opciones de Abono y RecepciÃ³n -->
+                        <!-- Opciones de Abono y Recepción -->
                         <div class="row g-3 mt-2">
                             <div class="col-12 col-md-6">
                                 <label class="form-label">
                                     <i class="bi bi-cash-coin me-1"></i>Abono (adelanto al proveedor)
                                 </label>
                                 <div class="input-group input-group-lg">
-                                    <span class="input-group-text">â‚¡</span>
+                                    <span class="input-group-text">¢</span>
                                     <input type="number" step="0.01" min="0" class="form-control" 
                                            placeholder="0.00"
                                            @bind="currentPurchase.DepositAmount" 
@@ -87,7 +87,7 @@
                                 {
                                     <small class="text-success">
                                         <i class="bi bi-check-circle me-1"></i>
-                                        Pago completo - Se recibe automÃ¡ticamente
+                                        Pago completo - Se recibe automáticamente
                                     </small>
                                 }
                                 else if (currentPurchase.DepositAmount > 0 && currentPurchase.DepositAmount < currentPurchase.Total)
@@ -112,7 +112,7 @@
                                             @if (currentPurchase.ProductReceived)
                                             {
                                                 <span class="text-success">
-                                                    <i class="bi bi-check-circle me-1"></i>Productos recibidos en el salÃ³n
+                                                    <i class="bi bi-check-circle me-1"></i>Productos recibidos en el salón
                                                 </span>
                                             }
                                             else
@@ -254,9 +254,9 @@
                                                             <i class="bi bi-plus"></i>
                                                         </button>
                                                     </div>
-                                                    <span class="text-muted">Ã—</span>
+                                                    <span class="text-muted">×</span>
                                                     <div class="input-group input-group-sm" style="width: 120px;">
-                                                        <span class="input-group-text">â‚¡</span>
+                                                        <span class="input-group-text">¢</span>
                                                         <input type="number" step="0.01" class="form-control" 
                                                                @bind="item.UnitCost" @bind:event="oninput"
                                                                @onchange="RecalculateTotal" />
@@ -281,7 +281,7 @@
     }
 </div>
 
-<!-- Modal de Ã‰xito -->
+<!-- Modal de Éxito -->
 @if (showSuccessModal)
 {
     <div class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
@@ -291,11 +291,11 @@
                     <div class="bg-success bg-opacity-10 rounded-circle p-4 mx-auto mb-4" style="width: fit-content;">
                         <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
                     </div>
-                    <h3 class="mb-3">Â¡Compra Registrada!</h3>
+                    <h3 class="mb-3">¡Compra Registrada!</h3>
                     <p class="text-muted mb-4">
                         @if (currentPurchase.ProductReceived)
                         {
-                            <span>El inventario se ha actualizado automÃ¡ticamente.</span>
+                            <span>El inventario se ha actualizado automáticamente.</span>
                         }
                         else
                         {
@@ -459,10 +459,10 @@
         {
             RecalculateTotal();
             
-            // Si no hay abono (pago completo), se recibe automÃ¡ticamente y se marca como pagado
+            // Si no hay abono (pago completo), se recibe automáticamente y se marca como pagado
             if (currentPurchase.DepositAmount == 0)
             {
-                currentPurchase.DepositAmount = currentPurchase.Total; // PagÃ³ todo
+                currentPurchase.DepositAmount = currentPurchase.Total; // Pagó todo
                 currentPurchase.PendingBalance = 0;
                 currentPurchase.ProductReceived = true;
             }

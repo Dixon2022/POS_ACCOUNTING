@@ -1,4 +1,4 @@
-ï»¿@page "/historial-general"
+@page "/historial-general"
 @inject ISaleService SaleService
 @inject IPurchaseService PurchaseService
 @inject IExpenseService ExpenseService
@@ -7,7 +7,7 @@
 @rendermode InteractiveServer
 @using ClosedXML.Excel
 
-<PageTitle>Historial General - SilSalon</PageTitle>
+<PageTitle>Historial General - Company</PageTitle>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -106,7 +106,7 @@
                         <i class="bi bi-list-ol me-1"></i>Total Movimientos
                     </h6>
                     <h2 class="mb-0">@filteredMovements.Count</h2>
-                    <small class="opacity-75">En el perÃ­odo</small>
+                    <small class="opacity-75">En el período</small>
                 </div>
             </div>
         </div>
@@ -125,7 +125,7 @@
         <div class="text-center py-5">
             <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
             <h4 class="text-muted mt-3">No hay movimientos registrados</h4>
-            <p class="text-muted">Los movimientos financieros aparecerÃ¡n aquÃ­</p>
+            <p class="text-muted">Los movimientos financieros aparecerán aquí</p>
         </div>
     }
     else
@@ -139,7 +139,7 @@
                             <tr>
                                 <th style="width: 140px;">Fecha</th>
                                 <th style="width: 120px;">Tipo</th>
-                                <th>DescripciÃ³n</th>
+                                <th>Descripción</th>
                                 <th style="width: 150px;">Relacionado</th>
                                 <th style="width: 140px;" class="text-end">Monto</th>
                             </tr>
@@ -341,7 +341,7 @@
             filtered = filtered.Where(m => !m.IsIncome);
         }
 
-        // Filtrar por tipo especÃ­fico
+        // Filtrar por tipo específico
         if (!string.IsNullOrEmpty(selectedType))
         {
             var type = Enum.Parse<FinancialMovementType>(selectedType);
@@ -433,9 +433,9 @@
         worksheet.Cell(1, 1).Value = "Fecha";
         worksheet.Cell(1, 2).Value = "Hora";
         worksheet.Cell(1, 3).Value = "Tipo";
-        worksheet.Cell(1, 4).Value = "DescripciÃ³n";
+        worksheet.Cell(1, 4).Value = "Descripción";
         worksheet.Cell(1, 5).Value = "Productos/Servicios";
-        worksheet.Cell(1, 6).Value = "CategorÃ­a";
+        worksheet.Cell(1, 6).Value = "Categoría";
         worksheet.Cell(1, 7).Value = "Relacionado";
         worksheet.Cell(1, 8).Value = "Notas";
         worksheet.Cell(1, 9).Value = "Cantidad";
@@ -477,7 +477,7 @@
             worksheet.Cell(row, 11).Value = movement.Amount;
             worksheet.Cell(row, 12).Value = movement.IsIncome ? "Ingreso" : "Egreso";
 
-            // Color de fila segÃºn tipo
+            // Color de fila según tipo
             if (movement.IsIncome)
             {
                 worksheet.Cell(row, 11).Style.Font.FontColor = XLColor.Green;

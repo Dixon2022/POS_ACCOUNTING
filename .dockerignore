@@ -1,0 +1,10 @@
+bin/
+obj/
+.vscode/
+.git/
+**/*.user
+**/*.vs
+**/SilSalon_v.1.csproj.user
+.DS_Store
+*.log
+*.db

@@ -1,9 +1,9 @@
-ï»¿@page "/historial-ventas"
+@page "/historial-ventas"
 @inject ISaleService SaleService
 @inject ICustomerService CustomerService
 @rendermode InteractiveServer
 
-<PageTitle>Historial de Ventas - SilSalon</PageTitle>
+<PageTitle>Historial de Ventas - Company</PageTitle>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -106,7 +106,7 @@
         <div class="text-center py-5">
             <i class="bi bi-receipt text-muted" style="font-size: 4rem;"></i>
             <h4 class="text-muted mt-3">No hay ventas registradas</h4>
-            <p class="text-muted">Las ventas que realices aparecerÃ¡n aquÃ­</p>
+            <p class="text-muted">Las ventas que realices aparecerán aquí</p>
             <a href="/ventas" class="btn btn-primary btn-lg mt-3">
                 <i class="bi bi-plus-lg me-2"></i>Realizar Primera Venta
             </a>
@@ -299,7 +299,7 @@
                     <div class="mb-3">
                         <label class="form-label">Monto a abonar</label>
                         <div class="input-group input-group-lg">
-                            <span class="input-group-text">â‚¡</span>
+                            <span class="input-group-text">¢</span>
                             <input type="number" step="0.01" min="0" max="@saleForPayment.PendingBalance" 
                                    class="form-control" @bind="paymentAmount" />
                         </div>
@@ -336,8 +336,8 @@
                 </div>
                 <div class="modal-body text-center py-4">
                     <i class="bi bi-box-seam text-info" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">Â¿Entregar productos de la Venta #@saleForDelivery.Id?</h4>
-                    <p class="text-muted">Los productos serÃ¡n descontados del inventario.</p>
+                    <h4 class="mt-3">¿Entregar productos de la Venta #@saleForDelivery.Id?</h4>
+                    <p class="text-muted">Los productos serán descontados del inventario.</p>
                     
                     <div class="bg-light rounded p-3 text-start">
                         <h6>Productos a descontar:</h6>
@@ -369,23 +369,23 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar EliminaciÃ³n
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Eliminación
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="() => showDeleteModal = false"></button>
                 </div>
                 <div class="modal-body text-center py-4">
                     <i class="bi bi-receipt-cutoff text-danger" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3">Â¿Eliminar Venta #@saleToDelete?.Id?</h4>
+                    <h4 class="mt-3">¿Eliminar Venta #@saleToDelete?.Id?</h4>
                     <p class="text-muted">
                         @if (saleToDelete?.ProductDelivered == true)
                         {
-                            <span>El stock de productos serÃ¡ restaurado.</span>
+                            <span>El stock de productos será restaurado.</span>
                         }
                         else
                         {
-                            <span>Los productos no fueron entregados, el inventario no se modificarÃ¡.</span>
+                            <span>Los productos no fueron entregados, el inventario no se modificará.</span>
                         }
-                        <br/>Esta acciÃ³n no se puede deshacer.
+                        <br/>Esta acción no se puede deshacer.
                     </p>
                 </div>
                 <div class="modal-footer">
