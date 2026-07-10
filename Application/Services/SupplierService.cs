@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class SupplierService : ISupplierService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public SupplierService(SalonDbContext context)
+    public SupplierService(ERPDbContext context)
     {
         _context = context;
     }
@@ -103,3 +103,4 @@ public class SupplierService : ISupplierService
         IsActive = supplier.IsActive
     };
 }
+

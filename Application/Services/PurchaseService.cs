@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class PurchaseService : IPurchaseService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public PurchaseService(SalonDbContext context)
+    public PurchaseService(ERPDbContext context)
     {
         _context = context;
     }
@@ -246,3 +246,4 @@ public class PurchaseService : IPurchaseService
         }).ToList()
     };
 }
+

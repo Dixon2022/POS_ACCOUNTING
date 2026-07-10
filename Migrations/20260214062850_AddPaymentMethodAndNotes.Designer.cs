@@ -10,7 +10,7 @@ using ERP_Software.Infrastructure.Data;
 
 namespace ERP_Software.Migrations
 {
-    [DbContext(typeof(SalonDbContext))]
+    [DbContext(typeof(ERPDbContext))]
     [Migration("20260214062850_AddPaymentMethodAndNotes")]
     partial class AddPaymentMethodAndNotes
     {
@@ -491,3 +491,4 @@ namespace ERP_Software.Migrations
         }
     }
 }
+

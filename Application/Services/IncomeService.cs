@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class IncomeService : IIncomeService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public IncomeService(SalonDbContext context)
+    public IncomeService(ERPDbContext context)
     {
         _context = context;
     }
@@ -84,3 +84,4 @@ public class IncomeService : IIncomeService
         Date = income.Date
     };
 }
+

@@ -9,9 +9,9 @@ namespace ERP_Software.Application.Services;
 
 public class SaleService : ISaleService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public SaleService(SalonDbContext context)
+    public SaleService(ERPDbContext context)
     {
         _context = context;
     }
@@ -277,3 +277,4 @@ public class SaleService : ISaleService
         }).ToList()
     };
 }
+

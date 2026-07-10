@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class ExpenseService : IExpenseService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public ExpenseService(SalonDbContext context)
+    public ExpenseService(ERPDbContext context)
     {
         _context = context;
     }
@@ -103,3 +103,4 @@ public class ExpenseService : IExpenseService
         Notes = expense.Notes
     };
 }
+

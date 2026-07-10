@@ -10,7 +10,7 @@ using ERP_Software.Infrastructure.Data;
 
 namespace ERP_Software.Migrations
 {
-    [DbContext(typeof(SalonDbContext))]
+    [DbContext(typeof(ERPDbContext))]
     [Migration("20260214081542_AddDepositAndDeliveryStatus")]
     partial class AddDepositAndDeliveryStatus
     {
@@ -509,3 +509,4 @@ namespace ERP_Software.Migrations
         }
     }
 }
+

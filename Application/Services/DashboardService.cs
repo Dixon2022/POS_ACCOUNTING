@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class DashboardService : IDashboardService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public DashboardService(SalonDbContext context)
+    public DashboardService(ERPDbContext context)
     {
         _context = context;
     }
@@ -165,3 +165,4 @@ public class DashboardService : IDashboardService
         };
     }
 }
+

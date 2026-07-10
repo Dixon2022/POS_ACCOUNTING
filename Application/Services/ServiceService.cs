@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class ServiceService : IServiceService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public ServiceService(SalonDbContext context)
+    public ServiceService(ERPDbContext context)
     {
         _context = context;
     }
@@ -94,3 +94,4 @@ public class ServiceService : IServiceService
         IsActive = service.IsActive
     };
 }
+

@@ -3,9 +3,9 @@ using ERP_Software.Domain.Entities;
 
 namespace ERP_Software.Infrastructure.Data;
 
-public class SalonDbContext : DbContext
+public class ERPDbContext : DbContext
 {
-    public SalonDbContext(DbContextOptions<SalonDbContext> options) : base(options)
+    public ERPDbContext(DbContextOptions<ERPDbContext> options) : base(options)
     {
     }
 
@@ -161,3 +161,4 @@ public class SalonDbContext : DbContext
         });
     }
 }
+

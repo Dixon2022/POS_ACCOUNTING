@@ -14,8 +14,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Configure Entity Framework Core with SQLite
-builder.Services.AddDbContext<SalonDbContext>(options =>
-    options.UseSqlite("Data Source=salon.db"));
+builder.Services.AddDbContext<ERPDbContext>(options =>
+    options.UseSqlite("Data Source=ERPDb.db"));
 
 // Register Application Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -34,7 +34,7 @@ var app = builder.Build();
 // Ensure database is created and migrations are applied
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<SalonDbContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ERPDbContext>();
     dbContext.Database.EnsureCreated();
 }
 
@@ -55,3 +55,4 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+

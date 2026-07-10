@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class CustomerService : ICustomerService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public CustomerService(SalonDbContext context)
+    public CustomerService(ERPDbContext context)
     {
         _context = context;
     }
@@ -97,3 +97,4 @@ public class CustomerService : ICustomerService
         IsActive = customer.IsActive
     };
 }
+

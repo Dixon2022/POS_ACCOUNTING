@@ -6,10 +6,10 @@ namespace ERP_Software.Infrastructure.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    protected readonly SalonDbContext _context;
+    protected readonly ERPDbContext _context;
     protected readonly DbSet<T> _dbSet;
 
-    public Repository(SalonDbContext context)
+    public Repository(ERPDbContext context)
     {
         _context = context;
         _dbSet = context.Set<T>();
@@ -59,3 +59,4 @@ public class Repository<T> : IRepository<T> where T : class
         return _dbSet.AsQueryable();
     }
 }
+

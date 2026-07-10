@@ -8,9 +8,9 @@ namespace ERP_Software.Application.Services;
 
 public class ProductService : IProductService
 {
-    private readonly SalonDbContext _context;
+    private readonly ERPDbContext _context;
 
-    public ProductService(SalonDbContext context)
+    public ProductService(ERPDbContext context)
     {
         _context = context;
     }
@@ -141,3 +141,4 @@ public class ProductService : IProductService
         VariantsCount = product.Variants?.Count ?? 0
     };
 }
+
