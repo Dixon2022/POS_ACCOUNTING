@@ -3,6 +3,7 @@ using ERP_Software.Application.Interfaces;
 using ERP_Software.Application.Services;
 using ERP_Software.Components;
 using ERP_Software.Infrastructure.Data;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,9 @@ builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("es-CR");
+CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("es-CR");
 
 var app = builder.Build();
 
