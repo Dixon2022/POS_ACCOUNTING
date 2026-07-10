@@ -1,7 +1,6 @@
 @page "/productos"
 @inject IProductService ProductService
 @inject ISupplierService SupplierService
-@rendermode InteractiveServer
 
 <PageTitle>Productos - Company</PageTitle>
 
@@ -189,6 +188,12 @@
                     <i class="bi bi-box text-danger" style="font-size: 4rem;"></i>
                     <h4 class="mt-3">¿Eliminar "@productToDelete?.Name"?</h4>
                     <p class="text-muted">Se eliminarán también todas sus variantes. Esta acción no se puede deshacer.</p>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3 mb-0 text-start" role="alert">
+                            <i class="bi bi-exclamation-octagon me-2"></i>@errorMessage
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-lg" @onclick="() => showDeleteModal = false">Cancelar</button>
@@ -212,6 +217,7 @@
     private bool isEditing = false;
     private string searchTerm = "";
     private bool showActiveOnly = true;
+    private string? errorMessage;
 
     private IEnumerable<ProductDto> FilteredProducts => products
         .Where(p => !showActiveOnly || p.IsActive)
@@ -276,18 +282,27 @@
     private void ShowDeleteConfirm(ProductDto product)
     {
         productToDelete = product;
+        errorMessage = null;
         showDeleteModal = true;
     }
 
     private async Task DeleteProduct()
     {
-        if (productToDelete != null)
+        errorMessage = null;
+        try
         {
-            await ProductService.DeleteAsync(productToDelete.Id);
-            await LoadData();
+            if (productToDelete != null)
+            {
+                await ProductService.DeleteAsync(productToDelete.Id);
+                await LoadData();
+            }
+            showDeleteModal = false;
+            productToDelete = null;
         }
-        showDeleteModal = false;
-        productToDelete = null;
+        catch (Exception)
+        {
+            errorMessage = "No se puede eliminar el producto porque tiene registros (p. ej. compras o ventas) asociados.";
+        }
     }
 
     private async Task ToggleActive(int id)

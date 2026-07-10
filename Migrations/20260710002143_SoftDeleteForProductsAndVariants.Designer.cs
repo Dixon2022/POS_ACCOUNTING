@@ -3,6 +3,7 @@ using System;
 using ERP_Software.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP_Software.Migrations
 {
     [DbContext(typeof(SalonDbContext))]
-    partial class SalonDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260710002143_SoftDeleteForProductsAndVariants")]
+    partial class SoftDeleteForProductsAndVariants
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.13");

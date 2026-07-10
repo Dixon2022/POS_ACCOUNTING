@@ -29,6 +29,8 @@ public class ProductVariant
 
     public bool IsActive { get; set; } = true;
 
+    public bool IsDeleted { get; set; } = false;
+
     // Navigation properties
     public virtual Product Product { get; set; } = null!;
     public virtual ICollection<SaleItem> SaleItems { get; set; } = new List<SaleItem>();

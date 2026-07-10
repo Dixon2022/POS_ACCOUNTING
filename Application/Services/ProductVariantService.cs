@@ -18,6 +18,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<IEnumerable<ProductVariantDto>> GetAllAsync()
     {
         return await _context.ProductVariants
+            .Where(pv => !pv.IsDeleted && !pv.Product.IsDeleted)
             .Include(pv => pv.Product)
             .OrderBy(pv => pv.Product.Name)
             .ThenBy(pv => pv.Name)
@@ -28,6 +29,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<IEnumerable<ProductVariantDto>> GetActiveAsync()
     {
         return await _context.ProductVariants
+            .Where(pv => !pv.IsDeleted && !pv.Product.IsDeleted)
             .Include(pv => pv.Product)
             .Where(pv => pv.IsActive && pv.Product.IsActive)
             .OrderBy(pv => pv.Product.Name)
@@ -39,6 +41,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<IEnumerable<ProductVariantDto>> GetByProductIdAsync(int productId)
     {
         return await _context.ProductVariants
+            .Where(pv => !pv.IsDeleted && !pv.Product.IsDeleted)
             .Include(pv => pv.Product)
             .Where(pv => pv.ProductId == productId)
             .OrderBy(pv => pv.Name)
@@ -49,6 +52,7 @@ public class ProductVariantService : IProductVariantService
     public async Task<ProductVariantDto?> GetByIdAsync(int id)
     {
         var variant = await _context.ProductVariants
+            .Where(pv => !pv.IsDeleted && !pv.Product.IsDeleted)
             .Include(pv => pv.Product)
             .FirstOrDefaultAsync(pv => pv.Id == id);
         return variant != null ? MapToDto(variant) : null;
@@ -76,7 +80,7 @@ public class ProductVariantService : IProductVariantService
 
     public async Task UpdateAsync(ProductVariantDto dto)
     {
-        var variant = await _context.ProductVariants.FindAsync(dto.Id);
+        var variant = await _context.ProductVariants.FirstOrDefaultAsync(pv => pv.Id == dto.Id && !pv.IsDeleted);
         if (variant != null)
         {
             variant.ProductId = dto.ProductId;
@@ -95,14 +99,14 @@ public class ProductVariantService : IProductVariantService
         var variant = await _context.ProductVariants.FindAsync(id);
         if (variant != null)
         {
-            _context.ProductVariants.Remove(variant);
+            variant.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
     }
 
     public async Task ToggleActiveAsync(int id)
     {
-        var variant = await _context.ProductVariants.FindAsync(id);
+        var variant = await _context.ProductVariants.FirstOrDefaultAsync(pv => pv.Id == id && !pv.IsDeleted);
         if (variant != null)
         {
             variant.IsActive = !variant.IsActive;

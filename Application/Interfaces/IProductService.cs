@@ -11,4 +11,5 @@ public interface IProductService
     Task UpdateAsync(ProductDto dto);
     Task DeleteAsync(int id);
     Task ToggleActiveAsync(int id);
+    Task CleanupDeletedProductsAsync();
 }

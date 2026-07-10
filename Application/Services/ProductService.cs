@@ -18,8 +18,9 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductDto>> GetAllAsync()
     {
         return await _context.Products
+            .Where(p => !p.IsDeleted)
             .Include(p => p.Supplier)
-            .Include(p => p.Variants)
+            .Include(p => p.Variants.Where(v => !v.IsDeleted))
             .OrderBy(p => p.Name)
             .Select(p => MapToDto(p))
             .ToListAsync();
@@ -28,8 +29,9 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductDto>> GetActiveAsync()
     {
         return await _context.Products
+            .Where(p => !p.IsDeleted)
             .Include(p => p.Supplier)
-            .Include(p => p.Variants)
+            .Include(p => p.Variants.Where(v => !v.IsDeleted))
             .Where(p => p.IsActive)
             .OrderBy(p => p.Name)
             .Select(p => MapToDto(p))
@@ -39,6 +41,7 @@ public class ProductService : IProductService
     public async Task<ProductDto?> GetByIdAsync(int id)
     {
         var product = await _context.Products
+            .Where(p => !p.IsDeleted)
             .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -63,7 +66,7 @@ public class ProductService : IProductService
 
     public async Task UpdateAsync(ProductDto dto)
     {
-        var product = await _context.Products.FindAsync(dto.Id);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == dto.Id && !p.IsDeleted);
         if (product != null)
         {
             product.Name = dto.Name;
@@ -75,20 +78,55 @@ public class ProductService : IProductService
 
     public async Task DeleteAsync(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.Variants)
+            .FirstOrDefaultAsync(p => p.Id == id);
+            
         if (product != null)
         {
-            _context.Products.Remove(product);
+            product.IsDeleted = true;
+            foreach (var variant in product.Variants)
+            {
+                variant.IsDeleted = true;
+            }
             await _context.SaveChangesAsync();
         }
     }
 
     public async Task ToggleActiveAsync(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
         if (product != null)
         {
             product.IsActive = !product.IsActive;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task CleanupDeletedProductsAsync()
+    {
+        // Obtener todos los productos borrados de forma lógica
+        var deletedProducts = await _context.Products
+            .Where(p => p.IsDeleted)
+            .ToListAsync();
+
+        if (deletedProducts.Any())
+        {
+            _context.Products.RemoveRange(deletedProducts);
+        }
+
+        // Obtener todas las variantes borradas de forma lógica
+        var deletedVariants = await _context.ProductVariants
+            .Where(v => v.IsDeleted)
+            .ToListAsync();
+
+        if (deletedVariants.Any())
+        {
+            _context.ProductVariants.RemoveRange(deletedVariants);
+        }
+
+        if (deletedProducts.Any() || deletedVariants.Any())
+        {
             await _context.SaveChangesAsync();
         }
     }
