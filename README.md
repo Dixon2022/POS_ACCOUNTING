@@ -1,4 +1,4 @@
-﻿# ERP - Adaptable 💅💇‍♀️
+﻿# ERP - Adaptable 
 
 ![ERP_Software Cover](GitImages/Dashboard.png)
 
